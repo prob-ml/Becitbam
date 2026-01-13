@@ -268,6 +268,107 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
 
     return tstar, tau
 
+def wpb_chernoff_tails(s, tau, a, t):
+    '''
+    Compute the Chernoff bound for a weighted Poisson binomial distribution.
+
+    Let X_i ~ Bernoulli(tau_i) * a_i. Returns:
+
+        E[exp(t * sum X_i)] * exp(-t * s)
+
+    Parameters
+    ----------
+    s : float
+        The threshold value
+    tau : numpy.ndarray
+        Bernoulli parameters (probabilities) for each variable
+    a : numpy.ndarray
+        Weights/upper bounds for each variable (X_i in {0, a_i})
+    t : float
+        The tilting parameter
+
+    Returns
+    -------
+    float
+        The Chernoff bound value (not log-transformed)
+    '''
+    tau = np.asarray(tau)
+    a = np.asarray(a)
+
+    assert len(tau) == len(a)
+    assert (tau >= 0).all() and (tau <= 1).all()
+    assert (a >= 0).all()
+    assert t >= 0
+
+    # E[exp(t * X_i)] = (1 - tau_i) + tau_i * exp(t * a_i)
+    log_mgf_sum = np.sum(np.log((1 - tau) + tau * np.exp(t * a)))
+    return np.exp(log_mgf_sum - t * s)
+
+def wpb_exact_tails(s, tau, a):
+    '''
+    Compute the exact tail probability for a weighted Poisson binomial distribution.
+
+    Let X_i ~ Bernoulli(tau_i) * a_i. Returns:
+
+        P(sum X_i >= s)
+
+    This is computed using dynamic programming (convolution of the distributions).
+
+    Parameters
+    ----------
+    s : float
+        The threshold value
+    tau : numpy.ndarray
+        Bernoulli parameters (probabilities) for each variable
+    a : numpy.ndarray
+        Weights/upper bounds for each variable (X_i in {0, a_i})
+
+    Returns
+    -------
+    float
+        The exact tail probability P(sum X_i >= s)
+    '''
+    tau = np.asarray(tau)
+    a = np.asarray(a)
+
+    assert len(tau) == len(a)
+    assert (tau >= 0).all() and (tau <= 1).all()
+    assert (a >= 0).all()
+
+    n = len(tau)
+    if n == 0:
+        return 1.0 if s <= 0 else 0.0
+
+    # Use dynamic programming with a dictionary to track (value, probability) pairs
+    # Start with the distribution of 0 (probability 1)
+    dist = {0.0: 1.0}
+
+    for i in range(n):
+        new_dist = {}
+        p_i = tau[i]
+        a_i = a[i]
+
+        for val, prob in dist.items():
+            # X_i = 0 with probability (1 - p_i)
+            v0 = val
+            if v0 in new_dist:
+                new_dist[v0] += prob * (1 - p_i)
+            else:
+                new_dist[v0] = prob * (1 - p_i)
+
+            # X_i = a_i with probability p_i
+            v1 = val + a_i
+            if v1 in new_dist:
+                new_dist[v1] += prob * p_i
+            else:
+                new_dist[v1] = prob * p_i
+
+        dist = new_dist
+
+    # Sum probabilities for all values >= s
+    tail_prob = sum(prob for val, prob in dist.items() if val >= s)
+    return tail_prob
+
 r'''
 
      _           _
