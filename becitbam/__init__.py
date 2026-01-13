@@ -193,12 +193,12 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
         X_i in [0, a_i]
         sum E[X_i] = mu
 
-    Returns the optimal tstar >= 0 and Bernoulli parameters tau such that if
+    Returns the optimal tstar >= 0 and parameters tau such that if
 
-        X_i ~ Bernoulli(tau_i) * a_i
+        X_i ~ Bernoulli(tau_i / a_i) * a_i
 
     then E[exp(tstar * sum X_i)] * exp(-tstar * s) achieves the tight
-    Chernoff bound.
+    Chernoff bound. Here tau_i = E[X_i] is the mean of X_i.
 
     Parameters
     ----------
@@ -214,7 +214,8 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
     tstar : float
         The optimal tilting parameter (>= 0)
     tau : numpy.ndarray
-        Bernoulli parameters for each element in a (same shape as a).
+        Mean parameters for each element in a (same shape as a).
+        tau_i = E[X_i], so tau_i is in [0, a_i].
         For elements where a_i = 0, tau_i = 0.
     '''
     _check_arguments(s, a, mu=mu)
@@ -242,19 +243,18 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
 
     # Compute tau for unique values
     # _taustar returns E[X_i] (mean), clipped to [0, a_i]
-    # We need to convert to Bernoulli parameters: p_i = E[X_i] / a_i
+    # tau_i = E[X_i] is what we want to return
     if tstar_norm == 0:
         # When t=0, the Chernoff bound is 1 regardless of the distribution,
         # so any tau values satisfying the mean constraint are valid.
         # We return zeros as a convention (the bound is achieved for any distribution).
-        tau_bernoulli_unique = np.zeros_like(asrt_norm)
+        tau_unique = np.zeros_like(asrt_norm)
     else:
         b = (np.exp(asrt_norm * tstar_norm) - 1) / asrt_norm
-        tau_mean_unique = _taustar(asrt_norm, b, lamstar)
-        # Convert from E[X_i] to Bernoulli parameter: p_i = E[X_i] / a_i
-        tau_bernoulli_unique = tau_mean_unique / asrt_norm
+        tau_unique = _taustar(asrt_norm, b, lamstar)
 
     # Un-uniqify: map tau values back to original array shape
+    # tau values are on normalized scale, need to scale back
     tau = np.zeros_like(a_original, dtype=float)
     for i, a_val in enumerate(a_original):
         if a_val == 0:
@@ -271,7 +271,8 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
                 # Check if previous index is closer
                 if abs(asrt_norm[idx - 1] - a_val_norm) < abs(asrt_norm[idx] - a_val_norm):
                     idx = idx - 1
-            tau[i] = tau_bernoulli_unique[idx]
+            # Scale tau back to original scale (tau was computed on normalized a)
+            tau[i] = tau_unique[idx] * mx
 
     return tstar, tau
 
@@ -279,7 +280,7 @@ def wpb_chernoff_tails(s, tau, a, t):
     '''
     Compute the Chernoff bound for a weighted Poisson binomial distribution.
 
-    Let X_i ~ Bernoulli(tau_i) * a_i. Returns:
+    Let X_i ~ Bernoulli(tau_i / a_i) * a_i where tau_i = E[X_i]. Returns:
 
         E[exp(t * sum X_i)] * exp(-t * s)
 
@@ -288,7 +289,7 @@ def wpb_chernoff_tails(s, tau, a, t):
     s : float
         The threshold value
     tau : numpy.ndarray
-        Bernoulli parameters (probabilities) for each variable
+        Mean parameters for each variable (tau_i = E[X_i], in [0, a_i])
     a : numpy.ndarray
         Weights/upper bounds for each variable (X_i in {0, a_i})
     t : float
@@ -303,29 +304,30 @@ def wpb_chernoff_tails(s, tau, a, t):
     a = np.asarray(a)
 
     assert len(tau) == len(a)
-    assert (tau >= 0).all() and (tau <= 1).all()
+    assert (tau >= 0).all()
     assert (a >= 0).all()
     assert t >= 0
+    # tau_i should be <= a_i (mean can't exceed upper bound)
+    assert (tau <= a + 1e-10).all()  # small tolerance for numerical precision
 
-    # E[exp(t * X_i)] = (1 - tau_i) + tau_i * exp(t * a_i)
+    # q_i = tau_i / a_i is the Bernoulli probability
+    # E[exp(t * X_i)] = (1 - q_i) + q_i * exp(t * a_i)
     # Use log-sum-exp trick for numerical stability when t*a is large
-    # log((1-tau) + tau*exp(t*a)) = log(exp(0)*(1-tau) + exp(t*a)*tau)
-    #                             = logsumexp([0, t*a], weights=[1-tau, tau])
     log_mgf_terms = []
     for i in range(len(tau)):
-        if tau[i] == 0:
-            log_mgf_terms.append(0.0)  # log(1) = 0
-        elif tau[i] == 1:
-            log_mgf_terms.append(t * a[i])  # log(exp(t*a)) = t*a
+        if a[i] == 0:
+            log_mgf_terms.append(0.0)  # X_i = 0 always, so E[exp(t*X_i)] = 1
+        elif tau[i] == 0:
+            log_mgf_terms.append(0.0)  # q_i = 0, so E[exp(t*X_i)] = 1
+        elif tau[i] >= a[i] - 1e-10:  # q_i ≈ 1
+            log_mgf_terms.append(t * a[i])  # E[exp(t*X_i)] = exp(t*a_i)
         else:
-            # log((1-tau) + tau*exp(t*a))
-            # = log(exp(0)*(1-tau) + exp(t*a)*tau)
-            # Use: log(a + b) = log(a) + log(1 + b/a) for stability
+            q_i = tau[i] / a[i]
             ta = t * a[i]
             if ta > 100:  # exp(ta) would overflow, use asymptotic
-                log_mgf_terms.append(ta + np.log(tau[i]))
+                log_mgf_terms.append(ta + np.log(q_i))
             else:
-                log_mgf_terms.append(np.log((1 - tau[i]) + tau[i] * np.exp(ta)))
+                log_mgf_terms.append(np.log((1 - q_i) + q_i * np.exp(ta)))
 
     log_mgf_sum = np.sum(log_mgf_terms)
     return np.exp(log_mgf_sum - t * s)
@@ -334,7 +336,7 @@ def wpb_exact_tails(s, tau, a):
     '''
     Compute the exact tail probability for a weighted Poisson binomial distribution.
 
-    Let X_i ~ Bernoulli(tau_i) * a_i. Returns:
+    Let X_i ~ Bernoulli(tau_i / a_i) * a_i where tau_i = E[X_i]. Returns:
 
         P(sum X_i >= s)
 
@@ -345,7 +347,7 @@ def wpb_exact_tails(s, tau, a):
     s : float
         The threshold value
     tau : numpy.ndarray
-        Bernoulli parameters (probabilities) for each variable
+        Mean parameters for each variable (tau_i = E[X_i], in [0, a_i])
     a : numpy.ndarray
         Weights/upper bounds for each variable (X_i in {0, a_i})
 
@@ -358,8 +360,10 @@ def wpb_exact_tails(s, tau, a):
     a = np.asarray(a)
 
     assert len(tau) == len(a)
-    assert (tau >= 0).all() and (tau <= 1).all()
+    assert (tau >= 0).all()
     assert (a >= 0).all()
+    # tau_i should be <= a_i (mean can't exceed upper bound)
+    assert (tau <= a + 1e-10).all()  # small tolerance for numerical precision
 
     n = len(tau)
     if n == 0:
@@ -371,23 +375,28 @@ def wpb_exact_tails(s, tau, a):
 
     for i in range(n):
         new_dist = {}
-        p_i = tau[i]
         a_i = a[i]
 
+        # q_i = tau_i / a_i is the Bernoulli probability
+        if a_i == 0:
+            q_i = 0.0  # X_i = 0 always
+        else:
+            q_i = tau[i] / a_i
+
         for val, prob in dist.items():
-            # X_i = 0 with probability (1 - p_i)
+            # X_i = 0 with probability (1 - q_i)
             v0 = val
             if v0 in new_dist:
-                new_dist[v0] += prob * (1 - p_i)
+                new_dist[v0] += prob * (1 - q_i)
             else:
-                new_dist[v0] = prob * (1 - p_i)
+                new_dist[v0] = prob * (1 - q_i)
 
-            # X_i = a_i with probability p_i
+            # X_i = a_i with probability q_i
             v1 = val + a_i
             if v1 in new_dist:
-                new_dist[v1] += prob * p_i
+                new_dist[v1] += prob * q_i
             else:
-                new_dist[v1] = prob * p_i
+                new_dist[v1] = prob * q_i
 
         dist = new_dist
 
