@@ -183,6 +183,89 @@ def _sharp_chernoff_weighted(s,mu,asrt,w):
 
     return rez
 
+def calculate_sharp_chernoff_parameters(s, mu, a):
+    '''
+    Compute the optimal Chernoff parameters for the sharp bound.
+
+    Let
+
+        S = sum_i^n X_i
+        X_i in [0, a_i]
+        sum E[X_i] = mu
+
+    Returns the optimal tstar >= 0 and Bernoulli parameters tau such that if
+
+        X_i ~ Bernoulli(tau_i) * a_i
+
+    then E[exp(tstar * sum X_i)] * exp(-tstar * s) achieves the tight
+    Chernoff bound.
+
+    Parameters
+    ----------
+    s : float
+        The threshold value
+    mu : float
+        The mean of the sum
+    a : numpy.ndarray
+        Upper bounds for each variable (X_i in [0, a_i])
+
+    Returns
+    -------
+    tstar : float
+        The optimal tilting parameter (>= 0)
+    tau : numpy.ndarray
+        Bernoulli parameters for each element in a (same shape as a).
+        For elements where a_i = 0, tau_i = 0.
+    '''
+    _check_arguments(s, a, mu=mu)
+
+    # Store original array for un-uniqifying
+    a_original = np.asarray(a).copy()
+
+    asrt, w = uniqify(a)
+
+    # Normalize for numerical stability (same as in sharp_chernoff)
+    mx = asrt.max()
+    s_norm = s / mx
+    mu_norm = mu / mx
+    asrt_norm = asrt / mx
+
+    # Get optimal t and lambda (on normalized scale)
+    rez = _sharp_chernoff_weighted(s_norm, mu_norm, asrt_norm, w)
+    tstar_norm = rez.x[0]
+    lamstar = rez.x[1]
+
+    # Convert tstar back to original scale
+    # Since s_norm = s/mx and a_norm = a/mx, the optimal t for normalized
+    # problem relates to the original by: t_orig = t_norm / mx
+    tstar = tstar_norm / mx
+
+    # Compute tau for unique values
+    # _taustar returns E[X_i] (mean), clipped to [0, a_i]
+    # We need to convert to Bernoulli parameters: p_i = E[X_i] / a_i
+    if tstar_norm == 0:
+        # When t=0, tau can be any value that satisfies the mean constraint
+        # Use uniform distribution: all have same Bernoulli parameter
+        tau_bernoulli_unique = np.zeros_like(asrt_norm)
+    else:
+        b = (np.exp(asrt_norm * tstar_norm) - 1) / asrt_norm
+        tau_mean_unique = _taustar(asrt_norm, b, lamstar)
+        # Convert from E[X_i] to Bernoulli parameter: p_i = E[X_i] / a_i
+        tau_bernoulli_unique = tau_mean_unique / asrt_norm
+
+    # Un-uniqify: map tau values back to original array shape
+    tau = np.zeros_like(a_original, dtype=float)
+    for i, a_val in enumerate(a_original):
+        if a_val == 0:
+            tau[i] = 0.0
+        else:
+            # Find which unique value this corresponds to
+            a_val_norm = a_val / mx
+            idx = np.searchsorted(asrt_norm, a_val_norm)
+            tau[i] = tau_bernoulli_unique[idx]
+
+    return tstar, tau
+
 r'''
 
      _           _
