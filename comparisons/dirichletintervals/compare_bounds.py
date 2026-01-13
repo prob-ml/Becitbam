@@ -123,7 +123,7 @@ def main(n=100, seed=42):
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
     ax.set_title(f'Comparison of Hoeffding and Becitbam Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
-    ax.legend(loc='upper right', fontsize=10)
+    ax.legend(loc='lower left', fontsize=10)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
