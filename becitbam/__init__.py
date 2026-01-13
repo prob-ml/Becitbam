@@ -271,11 +271,11 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
 
 def wpb_chernoff_tails(s, tau, a, t):
     '''
-    Compute the Chernoff bound for a weighted Poisson binomial distribution.
+    Compute the log Chernoff bound for a weighted Poisson binomial distribution.
 
     Let X_i ~ Bernoulli(tau_i / a_i) * a_i where tau_i = E[X_i]. Returns:
 
-        E[exp(t * sum X_i)] * exp(-t * s)
+        log(E[exp(t * sum X_i)] * exp(-t * s))
 
     Parameters
     ----------
@@ -291,7 +291,7 @@ def wpb_chernoff_tails(s, tau, a, t):
     Returns
     -------
     float
-        The Chernoff bound value (not log-transformed)
+        The log Chernoff bound value
     '''
     tau = np.asarray(tau)
     a = np.asarray(a)
@@ -323,15 +323,15 @@ def wpb_chernoff_tails(s, tau, a, t):
                 log_mgf_terms.append(np.log((1 - q_i) + q_i * np.exp(ta)))
 
     log_mgf_sum = np.sum(log_mgf_terms)
-    return np.exp(log_mgf_sum - t * s)
+    return log_mgf_sum - t * s
 
 def wpb_exact_tails(s, tau, a):
     '''
-    Compute the exact tail probability for a weighted Poisson binomial distribution.
+    Compute the log of the exact tail probability for a weighted Poisson binomial distribution.
 
     Let X_i ~ Bernoulli(tau_i / a_i) * a_i where tau_i = E[X_i]. Returns:
 
-        P(sum X_i >= s)
+        log(P(sum X_i >= s))
 
     This is computed using dynamic programming (convolution of the distributions).
 
@@ -347,7 +347,7 @@ def wpb_exact_tails(s, tau, a):
     Returns
     -------
     float
-        The exact tail probability P(sum X_i >= s)
+        The log of the exact tail probability log(P(sum X_i >= s))
     '''
     tau = np.asarray(tau)
     a = np.asarray(a)
@@ -360,7 +360,7 @@ def wpb_exact_tails(s, tau, a):
 
     n = len(tau)
     if n == 0:
-        return 1.0 if s <= 0 else 0.0
+        return 0.0 if s <= 0 else -np.inf
 
     # Use dynamic programming with a dictionary to track (value, probability) pairs
     # Start with the distribution of 0 (probability 1)
@@ -395,7 +395,9 @@ def wpb_exact_tails(s, tau, a):
 
     # Sum probabilities for all values >= s
     tail_prob = sum(prob for val, prob in dist.items() if val >= s)
-    return tail_prob
+    if tail_prob <= 0:
+        return -np.inf
+    return np.log(tail_prob)
 
 r'''
 
