@@ -244,8 +244,9 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
     # _taustar returns E[X_i] (mean), clipped to [0, a_i]
     # We need to convert to Bernoulli parameters: p_i = E[X_i] / a_i
     if tstar_norm == 0:
-        # When t=0, tau can be any value that satisfies the mean constraint
-        # Use uniform distribution: all have same Bernoulli parameter
+        # When t=0, the Chernoff bound is 1 regardless of the distribution,
+        # so any tau values satisfying the mean constraint are valid.
+        # We return zeros as a convention (the bound is achieved for any distribution).
         tau_bernoulli_unique = np.zeros_like(asrt_norm)
     else:
         b = (np.exp(asrt_norm * tstar_norm) - 1) / asrt_norm
@@ -259,11 +260,17 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
         if a_val == 0:
             tau[i] = 0.0
         else:
-            # Find which unique value this corresponds to
+            # Find which unique value this corresponds to using tolerance-based matching
             a_val_norm = a_val / mx
+            # Find closest match in sorted unique values
             idx = np.searchsorted(asrt_norm, a_val_norm)
-            # Clip index to valid range to handle floating-point precision issues
-            idx = min(idx, len(asrt_norm) - 1)
+            # Handle boundary cases and find closest match
+            if idx >= len(asrt_norm):
+                idx = len(asrt_norm) - 1
+            elif idx > 0:
+                # Check if previous index is closer
+                if abs(asrt_norm[idx - 1] - a_val_norm) < abs(asrt_norm[idx] - a_val_norm):
+                    idx = idx - 1
             tau[i] = tau_bernoulli_unique[idx]
 
     return tstar, tau
@@ -301,7 +308,26 @@ def wpb_chernoff_tails(s, tau, a, t):
     assert t >= 0
 
     # E[exp(t * X_i)] = (1 - tau_i) + tau_i * exp(t * a_i)
-    log_mgf_sum = np.sum(np.log((1 - tau) + tau * np.exp(t * a)))
+    # Use log-sum-exp trick for numerical stability when t*a is large
+    # log((1-tau) + tau*exp(t*a)) = log(exp(0)*(1-tau) + exp(t*a)*tau)
+    #                             = logsumexp([0, t*a], weights=[1-tau, tau])
+    log_mgf_terms = []
+    for i in range(len(tau)):
+        if tau[i] == 0:
+            log_mgf_terms.append(0.0)  # log(1) = 0
+        elif tau[i] == 1:
+            log_mgf_terms.append(t * a[i])  # log(exp(t*a)) = t*a
+        else:
+            # log((1-tau) + tau*exp(t*a))
+            # = log(exp(0)*(1-tau) + exp(t*a)*tau)
+            # Use: log(a + b) = log(a) + log(1 + b/a) for stability
+            ta = t * a[i]
+            if ta > 100:  # exp(ta) would overflow, use asymptotic
+                log_mgf_terms.append(ta + np.log(tau[i]))
+            else:
+                log_mgf_terms.append(np.log((1 - tau[i]) + tau[i] * np.exp(ta)))
+
+    log_mgf_sum = np.sum(log_mgf_terms)
     return np.exp(log_mgf_sum - t * s)
 
 def wpb_exact_tails(s, tau, a):
