@@ -220,10 +220,15 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
     '''
     _check_arguments(s, a, mu=mu)
 
-    # Store original array for un-uniqifying
-    a_original = np.asarray(a).copy()
+    a_original = np.asarray(a)
 
-    asrt, w = uniqify(a)
+    # Identify zero and non-zero indices
+    zero_mask = (a_original == 0)
+    nonzero_indices = np.where(~zero_mask)[0]
+    a_nonzero = a_original[~zero_mask]
+
+    # Get unique values and inverse mapping for non-zero elements
+    asrt, inverse_indices, w = np.unique(a_nonzero, return_inverse=True, return_counts=True)
 
     # Normalize for numerical stability (same as in sharp_chernoff)
     mx = asrt.max()
@@ -253,26 +258,14 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
         b = (np.exp(asrt_norm * tstar_norm) - 1) / asrt_norm
         tau_unique = _taustar(asrt_norm, b, lamstar)
 
+    # Scale tau back to original scale (tau was computed on normalized a)
+    tau_unique_scaled = tau_unique * mx
+
     # Un-uniqify: map tau values back to original array shape
-    # tau values are on normalized scale, need to scale back
     tau = np.zeros_like(a_original, dtype=float)
-    for i, a_val in enumerate(a_original):
-        if a_val == 0:
-            tau[i] = 0.0
-        else:
-            # Find which unique value this corresponds to using tolerance-based matching
-            a_val_norm = a_val / mx
-            # Find closest match in sorted unique values
-            idx = np.searchsorted(asrt_norm, a_val_norm)
-            # Handle boundary cases and find closest match
-            if idx >= len(asrt_norm):
-                idx = len(asrt_norm) - 1
-            elif idx > 0:
-                # Check if previous index is closer
-                if abs(asrt_norm[idx - 1] - a_val_norm) < abs(asrt_norm[idx] - a_val_norm):
-                    idx = idx - 1
-            # Scale tau back to original scale (tau was computed on normalized a)
-            tau[i] = tau_unique[idx] * mx
+    # Use inverse_indices to map unique tau values back to non-zero positions
+    tau[~zero_mask] = tau_unique_scaled[inverse_indices]
+    # Zero positions already have tau=0 from initialization
 
     return tstar, tau
 
