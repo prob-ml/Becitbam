@@ -262,6 +262,8 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
             # Find which unique value this corresponds to
             a_val_norm = a_val / mx
             idx = np.searchsorted(asrt_norm, a_val_norm)
+            # Clip index to valid range to handle floating-point precision issues
+            idx = min(idx, len(asrt_norm) - 1)
             tau[i] = tau_bernoulli_unique[idx]
 
     return tstar, tau
