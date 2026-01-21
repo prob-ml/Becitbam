@@ -109,15 +109,7 @@ def main(n=100, seed=42):
     b = np.max(a)  # Maximum interval width
     print(f"Generated simplex vector with n={n}, sum(a)={A:.6f}, max(a)={b:.6f}")
     
-    # For Bentkus bound, we use integer s values after rescaling by 1/max(a)
-    # s_rescaled = s / b should be integer, so s = k * b for integer k
-    # We want s in range [0.8, 1.0], so k ranges from ceil(0.8/b) to floor(1.0/b)
-    k_min = int(np.ceil(0.8 / b))
-    k_max = int(np.floor(1.0 / b))
-    bentkus_s_values = np.array([k * b for k in range(k_min, k_max + 1)])
-    print(f"Bentkus s values (rescaled integers): {len(bentkus_s_values)} points from k={k_min} to k={k_max}")
-    
-    # Values of s to evaluate for Hoeffding/Becitbam (continuous)
+    # Values of s to evaluate (continuous range)
     s_values = np.linspace(0.8, 1.0, 100)
     
     # Values of mu to consider
@@ -131,10 +123,7 @@ def main(n=100, seed=42):
     
     for mu, color in zip(mu_values, colors):
         print(f"Computing bounds for mu={mu}...")
-        hoeffding_bounds, becitbam_bounds, _ = compute_bounds(s_values, mu, a)
-        
-        # Compute Bentkus bounds only at integer-rescaled s values
-        bentkus_bounds = np.array([bentkus(s, mu, a) for s in bentkus_s_values])
+        hoeffding_bounds, becitbam_bounds, bentkus_bounds = compute_bounds(s_values, mu, a)
         
         # Plot Hoeffding bound (dashed line)
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
@@ -144,9 +133,10 @@ def main(n=100, seed=42):
         ax.plot(s_values, becitbam_bounds, '-', color=color,
                 label=f'Becitbam (μ={mu})', linewidth=1.5)
         
-        # Plot Bentkus bound (dotted line with markers)
-        ax.plot(bentkus_s_values, bentkus_bounds, ':', color=color,
-                label=f'Bentkus (μ={mu})', linewidth=1.5, marker='o', markersize=3)
+        # Plot Bentkus bound (dotted line)
+        # The bentkus function internally rounds s/max(a) to integer, creating step function behavior
+        ax.plot(s_values, bentkus_bounds, ':', color=color,
+                label=f'Bentkus (μ={mu})', linewidth=1.5)
     
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
