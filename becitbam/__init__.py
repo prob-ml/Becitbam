@@ -105,11 +105,12 @@ def bentkus(s, mu, a):
     Bentkus bound for P(S >= s) by rescaling to maximum interval width = 1.
 
     Based on Bentkus (2004) Theorem 1.2: For independent random variables X_i in [0, 1]
-    with total mean mu, we have P(S >= s) <= e * P(Binomial(n, p) >= s) where p = mu/n.
+    with total mean mu, we have P(S >= s) <= e * P°(Binomial(n, p) >= s) where p = mu/n.
 
     This function rescales the problem so that max(a_i) = 1, then applies the bound.
-    For the bound to apply without log-concave interpolation, s (after rescaling)
-    should be an integer.
+    For non-integer s (after rescaling), log-linear interpolation is used between
+    adjacent integer points as specified in the Bentkus paper (equation 1.8):
+        B°(z) = B^(1-λ)(x) * B^λ(y)  where z = (1-λ)x + λy
 
     Let
 
@@ -148,17 +149,51 @@ def bentkus(s, mu, a):
     # Ensure p is in valid range [0, 1]
     p = np.clip(p, 0.0, 1.0)
 
-    # For integer s_rescaled: P(Binomial(n, p) >= s_rescaled)
-    # Round up to nearest integer to be conservative
-    s_int = int(np.ceil(s_rescaled))
-
-    if s_int > n:
+    # Handle edge cases
+    if s_rescaled > n:
         return 0.0
-    if s_int <= 0:
+    if s_rescaled <= 0:
         return 1.0
 
-    # P(Binomial(n, p) >= s_int) = survival function at s_int - 1
-    binomial_tail = binom.sf(s_int - 1, n, p)
+    # Get the floor and ceiling integer points for interpolation
+    x = int(np.floor(s_rescaled))  # lower integer point
+    y = int(np.ceil(s_rescaled))   # upper integer point
+
+    # If s_rescaled is exactly an integer, no interpolation needed
+    if x == y or s_rescaled == x:
+        if x <= 0:
+            binomial_tail = 1.0
+        elif x > n:
+            binomial_tail = 0.0
+        else:
+            binomial_tail = binom.sf(x - 1, n, p)
+    else:
+        # Log-linear interpolation: B°(z) = B^(1-λ)(x) * B^λ(y)
+        # where z = (1-λ)x + λy, so λ = (z - x) / (y - x) = z - x (since y - x = 1)
+        lam = s_rescaled - x
+
+        # Get binomial survival function at integer points x and y
+        if x <= 0:
+            B_x = 1.0
+        else:
+            B_x = binom.sf(x - 1, n, p)
+
+        if y > n:
+            B_y = 0.0
+        else:
+            B_y = binom.sf(y - 1, n, p)
+
+        # Log-linear interpolation: B°(z) = B_x^(1-λ) * B_y^λ
+        # Handle edge cases where B_x or B_y is 0
+        if B_y <= 0:
+            # If B_y is 0, then B°(z) should be 0 for any λ > 0
+            binomial_tail = 0.0
+        elif B_x <= 0:
+            # This shouldn't happen if x > 0, but handle it
+            binomial_tail = 0.0
+        else:
+            # B°(z) = B_x^(1-λ) * B_y^λ = exp((1-λ)*log(B_x) + λ*log(B_y))
+            binomial_tail = np.exp((1 - lam) * np.log(B_x) + lam * np.log(B_y))
 
     # Bentkus constant is e ≈ 2.72
     bentkus_prob = np.e * binomial_tail
