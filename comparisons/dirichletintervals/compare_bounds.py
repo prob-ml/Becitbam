@@ -16,72 +16,13 @@ where the rescaled s is an integer.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import binom
 import sys
 import os
 
 # Add the parent directory to path to import becitbam
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from becitbam import hoeffding_thm2, sharp_chernoff
-
-
-def bentkus_bound(s, mu, a):
-    """
-    Compute Bentkus bound for P(S >= s) by rescaling to maximum interval width = 1.
-    
-    Based on Bentkus (2004) Theorem 1.2: For independent random variables X_i in [0, 1]
-    with total mean mu, we have P(S >= s) <= e * P(Binomial(n, p) >= s) where p = mu/n.
-    
-    This function rescales the problem so that max(a_i) = 1, then applies the bound.
-    For the bound to apply without log-concave interpolation, s (after rescaling)
-    should be an integer.
-    
-    Parameters
-    ----------
-    s : float
-        Threshold value
-    mu : float
-        Mean of the sum S
-    a : numpy.ndarray
-        Upper bounds for each variable (X_i in [0, a_i])
-    
-    Returns
-    -------
-    float
-        Bentkus bound on P(S >= s) (probability, not log probability)
-    """
-    n = len(a)
-    b = np.max(a)  # maximum interval width
-    
-    # Rescale: after rescaling, all variables are in [0, a_i/b] which is in [0, 1]
-    # The rescaled threshold and mean
-    s_rescaled = s / b
-    mu_rescaled = mu / b
-    
-    # Mean probability per variable for the comparison Binomial
-    p = mu_rescaled / n
-    
-    # Ensure p is in valid range [0, 1]
-    p = np.clip(p, 0.0, 1.0)
-    
-    # For integer s_rescaled: P(Binomial(n, p) >= s_rescaled)
-    # Round up to nearest integer to be conservative
-    s_int = int(np.ceil(s_rescaled))
-    
-    if s_int > n:
-        return 0.0
-    if s_int <= 0:
-        return 1.0
-    
-    # P(Binomial(n, p) >= s_int) = survival function at s_int - 1
-    binomial_tail = binom.sf(s_int - 1, n, p)
-    
-    # Bentkus constant is e ≈ 2.72
-    bentkus_prob = np.e * binomial_tail
-    
-    # Probability cannot exceed 1
-    return min(bentkus_prob, 1.0)
+from becitbam import hoeffding_thm2, sharp_chernoff, bentkus
 
 
 def generate_simplex_vector(n, seed=42):
@@ -143,7 +84,7 @@ def compute_bounds(s_values, mu, a):
         becitbam_bounds.append(np.exp(log_becitbam))
         
         # Bentkus bound (returns probability directly)
-        bentkus_prob = bentkus_bound(s, mu, a)
+        bentkus_prob = bentkus(s, mu, a)
         bentkus_bounds.append(bentkus_prob)
     
     return np.array(hoeffding_bounds), np.array(becitbam_bounds), np.array(bentkus_bounds)
@@ -193,7 +134,7 @@ def main(n=100, seed=42):
         hoeffding_bounds, becitbam_bounds, _ = compute_bounds(s_values, mu, a)
         
         # Compute Bentkus bounds only at integer-rescaled s values
-        bentkus_bounds = np.array([bentkus_bound(s, mu, a) for s in bentkus_s_values])
+        bentkus_bounds = np.array([bentkus(s, mu, a) for s in bentkus_s_values])
         
         # Plot Hoeffding bound (dashed line)
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 

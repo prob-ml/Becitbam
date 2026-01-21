@@ -100,6 +100,73 @@ def hoeffding_thm2(s,mu,a):
         return -2*hoeffding_t*hoeffding_t / np.sum(a**2)
 
 
+def bentkus(s, mu, a):
+    '''
+    Bentkus bound for P(S >= s) by rescaling to maximum interval width = 1.
+
+    Based on Bentkus (2004) Theorem 1.2: For independent random variables X_i in [0, 1]
+    with total mean mu, we have P(S >= s) <= e * P(Binomial(n, p) >= s) where p = mu/n.
+
+    This function rescales the problem so that max(a_i) = 1, then applies the bound.
+    For the bound to apply without log-concave interpolation, s (after rescaling)
+    should be an integer.
+
+    Let
+
+        S = sum_i^n X_i
+        X_i in [0, a_i]
+        sum E[X_i] = mu
+
+    Parameters
+    ----------
+    s : float
+        Threshold value
+    mu : float
+        Mean of the sum S
+    a : numpy.ndarray
+        Upper bounds for each variable (X_i in [0, a_i])
+
+    Returns
+    -------
+    float
+        Bentkus bound on P(S >= s) (probability, not log probability)
+    '''
+    from scipy.stats import binom
+
+    a = np.asarray(a)
+    n = len(a)
+    b = np.max(a)  # maximum interval width
+
+    # Rescale: after rescaling, all variables are in [0, a_i/b] which is in [0, 1]
+    # The rescaled threshold and mean
+    s_rescaled = s / b
+    mu_rescaled = mu / b
+
+    # Mean probability per variable for the comparison Binomial
+    p = mu_rescaled / n
+
+    # Ensure p is in valid range [0, 1]
+    p = np.clip(p, 0.0, 1.0)
+
+    # For integer s_rescaled: P(Binomial(n, p) >= s_rescaled)
+    # Round up to nearest integer to be conservative
+    s_int = int(np.ceil(s_rescaled))
+
+    if s_int > n:
+        return 0.0
+    if s_int <= 0:
+        return 1.0
+
+    # P(Binomial(n, p) >= s_int) = survival function at s_int - 1
+    binomial_tail = binom.sf(s_int - 1, n, p)
+
+    # Bentkus constant is e ≈ 2.72
+    bentkus_prob = np.e * binomial_tail
+
+    # Probability cannot exceed 1
+    return min(bentkus_prob, 1.0)
+
+
 
 r'''
  _   _       _     _          _                            __  __
