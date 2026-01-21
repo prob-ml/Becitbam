@@ -63,10 +63,7 @@ def bentkus_bound(s, mu, a):
     p = mu_rescaled / n
     
     # Ensure p is in valid range [0, 1]
-    if p < 0:
-        p = 0.0
-    if p > 1:
-        p = 1.0
+    p = np.clip(p, 0.0, 1.0)
     
     # For integer s_rescaled: P(Binomial(n, p) >= s_rescaled)
     # Round up to nearest integer to be conservative
@@ -230,7 +227,7 @@ def main(n=100, seed=42):
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare Hoeffding and Becitbam bounds')
+    parser = argparse.ArgumentParser(description='Compare Hoeffding, Becitbam, and Bentkus bounds')
     parser.add_argument('--n', type=int, default=100, help='Dimension of the simplex (default: 100)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility (default: 42)')
     
