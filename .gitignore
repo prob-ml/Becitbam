@@ -3,6 +3,11 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Netlify build artifacts
+_site/
+pandoc-*/
+pandoc.tar.gz
+
 # C extensions
 *.so
 
