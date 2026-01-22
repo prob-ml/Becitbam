@@ -20,7 +20,7 @@ import sys
 import os
 
 # Add the parent directory to path to import becitbam
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from becitbam import hoeffding_thm2, sharp_chernoff, bentkus
 
