@@ -123,7 +123,7 @@ Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can 
 \end{gather*}
 \end{theorem}
 
-The high-dimensional minimax problem from Theorem~\ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
+The high-dimensional minimax problem from \ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
 
 \begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/a$, 
 \[
@@ -150,7 +150,7 @@ This theorem suggests two methods for computing $\varphi^*$.  One method involve
 \begin{center}
 \includegraphics[width=5in]{comparisons/dirichlet_100.png}
   \caption{
-  The new bounds are tighter than the general Hoeffding inequality.  We consider three choices of fixed expected value, $\mu \in \{0.8, 0.9, 0.95\}$.  We compare tail bounds based on the general Hoeffding inequality \citep[Theorem 2]{hoeffding_probability_1963} with the new bounds; the latter are calculated using Theorem~\ref{thm:lowd}. The top plot shows the bounds.  The bottom plot demonstrates the factor of improvement, showing ratios of the two bounds on a log scale.
+  The new bounds are tighter than the general Hoeffding inequality.  We consider three choices of fixed expected value, $\mu \in \{0.8, 0.9, 0.95\}$.  We compare tail bounds based on the general Hoeffding inequality \citep[Theorem 2]{hoeffding_probability_1963} with the new bounds; the latter are calculated using \ref{thm:lowd}. The top plot shows the bounds.  The bottom plot demonstrates the factor of improvement, showing ratios of the two bounds on a log scale.
   }\label{fig:tailboundcomparisons}
 \end{center}
 \end{figure}
@@ -165,7 +165,7 @@ Figure~\ref{fig:tailboundcomparisons} compares our new bounds with the general H
 \begin{appendix}
 \section*{Proofs}\label{appn}
 
-To prove Theorem~\ref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from Equation~\ref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed expected value $\mu$, let
+To prove \ref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from Equation~\ref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed expected value $\mu$, let
 \[
 \mathcal{M}_{\boldsymbol{b},\mu} = \left\{\boldsymbol{p} \in \prod_i \mathcal{M}_{b_i}:\ \sum_i\mathbb{E}_{X_i \sim p_i}[X_i] \leq \mu\right\}.
 \]
@@ -243,7 +243,7 @@ Moreover, the mapping $t \mapsto \min_\lambda g(t,\lambda;s)$ is convex and the 
 \end{theorem*}
 
 \begin{proof}
-Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that 
+Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.  Recall from \ref{thm:tightchernoff} that 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
