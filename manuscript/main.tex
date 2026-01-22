@@ -44,11 +44,11 @@ Department of Statistics, University of Michigan}
 
 \bigskip
 \begin{abstract}
-We construct a new tail bound for the sum of independent random variables for situations in which the expected value of the sum is known and each random variable lies within a specified interval, which may be different for each variable.  This new bound can be computed by solving a two-dimensional convex optimization problem.  Simulations demonstrate that the new bound is often substantially tighter than Hoeffding's inequality for cases in which both bounds are applicable.
+We construct a new tail bound for the sum of independent random variables for situations in which the expected value of the sum is known and each random variable lies within a specified interval, which may be different for each variable.  This new bound can be computed efficiently by solving a two-dimensional convex optimization problem, making it practical for real-world applications.  Simulations demonstrate that the new bound is often substantially tighter than Hoeffding's inequality for cases in which both bounds are applicable.  Our results have important implications for statistical hypothesis testing and machine learning applications.
 \end{abstract}
 
 \noindent%
-{\it Keywords:}  Hoeffding's inequality; tail bounds; convex optimization
+{\it Keywords:}  Hoeffding's inequality; tail bounds; convex optimization; concentration inequalities; statistical testing
 \vfill
 
 \newpage
@@ -59,7 +59,7 @@ We construct a new tail bound for the sum of independent random variables for si
 
 \section{Introduction}
 
-The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$.  The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
+The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  It remains one of the most widely used concentration inequalities in modern machine learning and statistical inference.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$.  The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
 \begin{equation} \label{eq:hoeffgeneral}
 \mathbb{P}(S \geq \mu+t) \leq \exp\left(-2t^2 / \sum_{i=1}^n b_i^2 \right).
 \end{equation}
