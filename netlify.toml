@@ -1,0 +1,22 @@
+[build]
+  # Build command that converts LaTeX to HTML
+  command = "chmod +x build.sh && ./build.sh"
+  # Directory to publish after build
+  publish = "_site"
+
+[build.environment]
+  # Use Ubuntu Focal which has pandoc available
+  PANDOC_VERSION = "3.1.1"
+
+# Redirects for cleaner URLs
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# Headers for better caching
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"

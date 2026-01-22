@@ -1,0 +1,251 @@
+/* Academic manuscript styling */
+:root {
+    --text-color: #333;
+    --bg-color: #fff;
+    --accent-color: #2563eb;
+    --border-color: #e5e7eb;
+    --code-bg: #f3f4f6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Times New Roman', Times, Georgia, serif;
+    line-height: 1.8;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header and title */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+h1.title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.author {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Section headings */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.05rem; }
+
+/* Paragraphs */
+p {
+    margin-bottom: 1rem;
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* Abstract */
+.abstract {
+    font-style: italic;
+    background-color: #f9fafb;
+    padding: 1.5rem;
+    border-left: 4px solid var(--accent-color);
+    margin: 2rem 0;
+}
+
+.abstract p:first-child::before {
+    content: "Abstract: ";
+    font-weight: bold;
+}
+
+/* Keywords */
+.keywords {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 1rem 0;
+}
+
+/* Math equations */
+.math {
+    overflow-x: auto;
+    padding: 0.5rem 0;
+}
+
+.math.display {
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.equation-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.equation-number {
+    font-size: 1rem;
+    color: var(--text-color);
+    min-width: 2rem;
+    text-align: right;
+}
+
+/* Theorems and proofs */
+.theorem, .lemma, .proposition, .corollary, .definition {
+    background-color: #f8fafc;
+    border-left: 4px solid var(--accent-color);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.theorem-title, .lemma-title, .proposition-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.proof {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border-color);
+}
+
+/* Figures */
+figure {
+    margin: 2rem auto;
+    text-align: center;
+}
+
+figure img {
+    max-width: 100%;
+    height: auto;
+}
+
+figcaption {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+    text-align: left;
+    padding: 0 1rem;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    margin: 1.5rem auto;
+    font-size: 0.95rem;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    text-align: left;
+}
+
+th {
+    background-color: #f3f4f6;
+    font-weight: bold;
+}
+
+/* References/Bibliography */
+.references {
+    font-size: 0.9rem;
+}
+
+#refs {
+    margin-top: 3rem;
+}
+
+#refs::before {
+    content: "References";
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.references h2 {
+    font-size: 1.3rem;
+    margin-top: 3rem;
+}
+
+.csl-entry {
+    margin-bottom: 0.75rem;
+    padding-left: 2rem;
+    text-indent: -2rem;
+}
+
+/* Links */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Appendix */
+.appendix {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Supplementary materials */
+.supplementary {
+    background-color: #f9fafb;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+        font-size: 15px;
+    }
+    
+    h1.title {
+        font-size: 1.4rem;
+    }
+    
+    .math.display {
+        font-size: 0.9rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        max-width: none;
+        padding: 0;
+        font-size: 12pt;
+    }
+    
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}
