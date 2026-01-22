@@ -20,6 +20,10 @@ echo "Pandoc version: $(pandoc --version | head -1)"
 # Copy CSS to output
 cp assets/style.css _site/
 
+# Copy images to output
+mkdir -p _site/comparisons
+cp comparisons/*.png _site/comparisons/
+
 # Convert LaTeX to HTML using pandoc
 echo "Converting manuscript to HTML..."
 pandoc manuscript/main.tex \

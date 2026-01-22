@@ -96,6 +96,21 @@ p {
     margin: 1.5rem 0;
 }
 
+.equation-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.equation-number {
+    font-size: 1rem;
+    color: var(--text-color);
+    min-width: 2rem;
+    text-align: right;
+}
+
 /* Theorems and proofs */
 .theorem, .lemma, .proposition, .corollary, .definition {
     background-color: #f8fafc;
@@ -155,6 +170,18 @@ th {
 /* References/Bibliography */
 .references {
     font-size: 0.9rem;
+}
+
+#refs {
+    margin-top: 3rem;
+}
+
+#refs::before {
+    content: "References";
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
 }
 
 .references h2 {
