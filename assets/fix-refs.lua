@@ -1,10 +1,15 @@
--- Lua filter to fix LaTeX equation references for HTML output
+-- Lua filter to fix LaTeX references for HTML output
 -- 1. Adds id anchors to equations with \label
 -- 2. Adds equation numbers (1), (2), etc. to labeled equations
 -- 3. Converts unresolved references to proper numbered links
+-- 4. Ensures theorem references are just numbers, not "Theorem X"
 
 local equation_numbers = {}
+local theorem_numbers = {}
+local figure_numbers = {}
 local current_eq = 0
+local current_thm = 0
+local current_fig = 0
 
 -- First pass: collect equation labels, assign numbers, and add anchors/numbers
 function Math(el)
@@ -29,14 +34,43 @@ function Math(el)
   return el
 end
 
--- Second pass: fix references in links
+-- Track theorem numbers from Div elements with theorem class
+function Div(el)
+  if el.classes:includes("theorem") then
+    current_thm = current_thm + 1
+    if el.identifier and el.identifier ~= "" then
+      theorem_numbers[el.identifier] = current_thm
+    end
+  end
+  if el.classes:includes("figure") then
+    current_fig = current_fig + 1
+    if el.identifier and el.identifier ~= "" then
+      figure_numbers[el.identifier] = current_fig
+    end
+  end
+  return el
+end
+
+-- Second pass: fix references in links - ensure only the number is shown
 function Link(el)
   local target = el.target
-  if target:match("^#eq:") or target:match("^#thm:") or target:match("^#fig:") or target:match("^#sec:") then
-    local label = target:sub(2)  -- Remove the leading #
+  local label = target:sub(2)  -- Remove the leading #
+  
+  if target:match("^#eq:") then
     local num = equation_numbers[label]
     if num then
       el.content = {pandoc.Str("(" .. num .. ")")}
+    end
+  elseif target:match("^#thm:") then
+    local num = theorem_numbers[label]
+    if num then
+      -- Just the number, no parentheses for theorems
+      el.content = {pandoc.Str(tostring(num))}
+    end
+  elseif target:match("^#fig:") then
+    local num = figure_numbers[label]
+    if num then
+      el.content = {pandoc.Str(tostring(num))}
     end
   end
   return el
@@ -47,10 +81,27 @@ function Span(el)
   if el.attributes["data-reference-type"] == "ref" then
     local label = el.attributes["data-reference"]
     if label then
+      -- Check equations
       local num = equation_numbers[label]
       if num then
         return pandoc.Link(
           {pandoc.Str("(" .. num .. ")")},
+          "#" .. label
+        )
+      end
+      -- Check theorems
+      num = theorem_numbers[label]
+      if num then
+        return pandoc.Link(
+          {pandoc.Str(tostring(num))},
+          "#" .. label
+        )
+      end
+      -- Check figures
+      num = figure_numbers[label]
+      if num then
+        return pandoc.Link(
+          {pandoc.Str(tostring(num))},
           "#" .. label
         )
       end
@@ -60,6 +111,6 @@ function Span(el)
 end
 
 return {
-  {Math = Math},  -- First pass: add anchors and numbers
+  {Div = Div, Math = Math},  -- First pass: collect numbers and add equation anchors
   {Link = Link, Span = Span}  -- Second pass: fix references
 }
