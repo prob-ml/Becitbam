@@ -79,21 +79,21 @@ In this article, we propose a computable bound for the sum of independent random
 
 \label{sec:notation}
 
-Consider a set of probability distributions on independent bounded random variables.  For any scalar $c\geq 0$, let $\mathcal{M}_c$ denote the space of probability distributions with support on $[0,c]$.  For any vector of interval lengths $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed value $\mu$, let
+Consider a set of probability distributions on independent bounded random variables.  For any scalar $c\geq 0$, let $\mathcal{M}_c$ denote the space of probability distributions with support on $[0,c]$.  For any vector of interval lengths $\boldsymbol{b}\in ({\mathbb{R}^+})^n$ and fixed value $\mu$, let
 \begin{equation} \label{eq:mdef}
-\mathcal{M}_{\boldsymbol{b},\mu} = \left\{\boldsymbol{p} \in \prod_{i=1}^m  \mathcal{M}_{b_i}:\ \sum_{i=1}^m \mathbb{E}_{X_i \sim p_i}[X_i] \leq \mu\right\}.
+\mathcal{M}_{\boldsymbol{b},\mu} = \left\{\boldsymbol{p} \in \prod_{i=1}^n  \mathcal{M}_{b_i}:\ \sum_{i=1}^n \mathbb{E}_{X_i \sim p_i}[X_i] \leq \mu\right\}.
 \end{equation}
 In other words, a random vector $\boldsymbol{X}=(X_1,\ldots X_n)$  drawn according to a member of $\mathcal{M}_{\boldsymbol{b},\mu}$ satisfies three conditions: (i) each variable is independent, (ii) $X_i \in [0,b_i]$ for each $i$, and (iii) the expected sum over the vector is at most $\mu$.
 
-\citet[Theorem 2]{hoeffding_probability_1963} provides a tail bound for the variable $S=\sum_{i=1}^m X_i$ when $\boldsymbol{X}$ is drawn according to $\mathcal{M}_{\boldsymbol{b},\mu}$, for fixed $\boldsymbol{b}$ and $\mu$.  To construct this bound, \citet{hoeffding_probability_1963} first considers a tail bound for a particular $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$.
+\citet[Theorem 2]{hoeffding_probability_1963} provides a tail bound for the variable $S=\sum_{i=1}^n X_i$ when $\boldsymbol{X}$ is drawn according to $\mathcal{M}_{\boldsymbol{b},\mu}$, for fixed $\boldsymbol{b}$ and $\mu$.  To construct this bound, \citet{hoeffding_probability_1963} first considers a tail bound for a particular $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$.
 Let
 \[
-\varphi(\boldsymbol{p},s) = \inf_{t\geq 0} \left(\sum_{i=1}^m \log \mathbb{E}_{X_i \sim p_i}[\exp(t X_i)] - ts\right).
+\varphi(\boldsymbol{p},s) = \inf_{t\geq 0} \left(\sum_{i=1}^n \log \mathbb{E}_{X_i \sim p_i}[\exp(t X_i)] - ts\right).
 \]
 If $\boldsymbol{X}$ is drawn according to any member of $\mathcal{M}_{\boldsymbol{b},\mu}$, the Chernoff--Cram\'er bound gives that $\log \mathbb{P} \left (S \geq s\right)$ is at most $\sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \varphi(\boldsymbol{p},s)$.
 To produce a bound that is universal for all members of $\mathcal{M}_{\boldsymbol{b},\mu}$, \citet{hoeffding_probability_1963} therefore considers the quantity
 \begin{equation} \label{eq:varphistar}
-\varphi^*_{\boldsymbol{b},\mu}(s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \varphi(\boldsymbol{p},s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \inf_{t\geq 0} \left(\sum_{i=1}^m \log \mathbb{E}_{X_i \sim p_i}[\exp(t X_i)] - ts\right).
+\varphi^*_{\boldsymbol{b},\mu}(s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \varphi(\boldsymbol{p},s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \inf_{t\geq 0} \left(\sum_{i=1}^n \log \mathbb{E}_{X_i \sim p_i}[\exp(t X_i)] - ts\right).
 \end{equation}
 This leads to a tail bound for $S$ in terms of $\varphi^*$: 
 \begin{equation} \label{eq:chernoff}
@@ -101,9 +101,9 @@ This leads to a tail bound for $S$ in terms of $\varphi^*$:
 \end{equation}
 Equation~\ref{eq:chernoff} is the worst-case Chernoff--Cram\'er bound for a sum of independent random variables $(X_1,\ldots X_n)$ with each $X_i \in [0,b_i]$ and $\sum_{i=1}^n \mathbb{E}[X_i]=\mu$.  
 
-To compute the right-hand side of Equation~\ref{eq:chernoff}, \citet{hoeffding_probability_1963} considers two different readily computable expressions for $\varphi^*$.  In one theorem, a formula for $\varphi^*_{\boldsymbol{b},\mu}$ is provided for the special case in which $b_1=\cdots=b_m=1$, leading to the specialized Hoeffding inequality, Equation~\ref{eq:hoeffspecial}.  In another theorem, an \emph{upper bound} is produced for $\varphi^*_{\boldsymbol{b},\mu}$ in the general case of arbitrary $\boldsymbol{b}$, namely,
+To compute the right-hand side of Equation~\ref{eq:chernoff}, \citet{hoeffding_probability_1963} considers two different readily computable expressions for $\varphi^*$.  In one theorem, a formula for $\varphi^*_{\boldsymbol{b},\mu}$ is provided for the special case in which $b_1=\cdots=b_n=1$, leading to the specialized Hoeffding inequality, Equation~\ref{eq:hoeffspecial}.  In another theorem, an \emph{upper bound} is produced for $\varphi^*_{\boldsymbol{b},\mu}$ in the general case of arbitrary $\boldsymbol{b}$, namely,
 $
-\varphi^*_{\boldsymbol{b},\mu}(s)\leq -2(s-\mu)^2/\sum_{i=1}^m b_i^2,
+\varphi^*_{\boldsymbol{b},\mu}(s)\leq -2(s-\mu)^2/\sum_{i=1}^n b_i^2,
 $
 leading to the general Hoeffding inequality.  
 
@@ -118,18 +118,18 @@ Equation~\ref{eq:varphistar} defines $\varphi^*$ as the solution to a maximin pr
 
 \begin{theorem} \label{thm:tightchernoff} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let 
 \begin{align*}
-T=\left\{\tau\in \prod_{i=1}^m [0,b_i] : \sum_{i=1}^m \tau_i = \mu\right\}.
+T=\left\{\tau\in \prod_{i=1}^n [0,b_i] : \sum_{i=1}^n \tau_i = \mu\right\}.
 \end{align*}
 Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
-= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
+= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 \end{theorem}
 
 The high-dimensional minimax problem from Theorem~\ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
 
-\begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/a$, 
+\begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$, 
 \[
 \tau^*_i(t,\lambda) = \min\left(\max\left(\frac{\xi(b_i,t)-\lambda}{\xi(b_i,t)\lambda},0\right),b_i\right),
 \]
@@ -180,24 +180,24 @@ To verify that our bounds perform well even when the Bentkus bounds are directly
 \begin{appendix}
 \section*{Proofs}\label{appn}
 
-To prove Theorem~\ref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from Equation~\ref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed expected value $\mu$, let
+To prove Theorem~\ref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from Equation~\ref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^n$ and fixed expected value $\mu$, let
 \[
 \mathcal{M}_{\boldsymbol{b},\mu} = \left\{\boldsymbol{p} \in \prod_i \mathcal{M}_{b_i}:\ \sum_i\mathbb{E}_{X_i \sim p_i}[X_i] \leq \mu\right\}.
 \]
 Here
 $\prod_i \mathcal{M}_{b_i}$
-denotes a direct sum of a topological vector spaces.  For example, if $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$ then $\boldsymbol{p}=(p_1,\ldots, p_m)$ where each $p_i \in \mathcal{M}_{b_i}$.  Recall that addition is computed in the following manner for such direct sum spaces: for any $\boldsymbol{p},\boldsymbol{q} \in \mathcal{M}_{\boldsymbol{b},\mu}$, $(\boldsymbol{p}+\boldsymbol{q})=((p_1+q_1),\ldots, (p_m+q_m))$.  This seemingly excessive formality is necessary to clarify that $\mathcal{M}_{\boldsymbol{b},\mu}$ is, in fact, convex.
+denotes a direct sum of a topological vector spaces.  For example, if $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$ then $\boldsymbol{p}=(p_1,\ldots, p_n)$ where each $p_i \in \mathcal{M}_{b_i}$.  Recall that addition is computed in the following manner for such direct sum spaces: for any $\boldsymbol{p},\boldsymbol{q} \in \mathcal{M}_{\boldsymbol{b},\mu}$, $(\boldsymbol{p}+\boldsymbol{q})=((p_1+q_1),\ldots, (p_n+q_n))$.  This seemingly excessive formality is necessary to clarify that $\mathcal{M}_{\boldsymbol{b},\mu}$ is, in fact, convex.
 
-\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
+\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
-= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
+= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 \end{theorem*}
 
 \begin{proof}
 
-Fix $s$. Let $\xi(b,t)=(\exp(bt)-1)/a$.  Let 
+Fix $s$. Let $\xi(b,t)=(\exp(bt)-1)/b$.  Let 
 \[
 f(t,\boldsymbol{p})=\sum_{i}\log \mathbb{E}_{B_{i}\sim p_{i}}[\exp(tB_{i})]-ts.
 \]
@@ -215,7 +215,7 @@ inequality.
 \end{itemize}
 Sion's minimax theorem thus shows that
 \[
-\min_{t\geq0}\max_{\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}}f(t,\boldsymbol{p})=\inf_{t\geq0}\max_{\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}}f(t,\boldsymbol{p}).
+\inf_{t\geq0}\sup_{\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}}f(t,\boldsymbol{p})=\sup_{\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}}\inf_{t\geq0}f(t,\boldsymbol{p}).
 \]
 For any fixed $t$, the maximization of $f$ may be reduced to a finite-dimensional
 problem. First, we rewrite the maximization problem by introducing
@@ -238,11 +238,11 @@ distribution,
 \[
 \log \mathbb{E}_{p_{i}}\left[\exp\left(tB_{i}\right)\right]=\log\left(1+\xi(b_i,t)\tau_{i}\right).
 \]
-Note that this is monotone increasing in $\tau$, so the constraint $\sum_i \tau_i \leq \mu$ may be replaced with the constraint $\sum_i \tau_i=\mu$ without changing the result.  Our problem thus reduces to the desired form.
+Note that this is monotone increasing in $\tau$, so the constraint $\sum_i \tau_i \leq \mu$ may be replaced with the constraint $\sum_i \tau_i=\mu$ without changing the result.  Furthermore, since the original constraint was an inequality ($\leq \mu$), the Lagrange multiplier $\lambda$ is constrained to be nonnegative.  Our problem thus reduces to the desired form.
 
 \end{proof}
 
-\begin{theorem*}[Restatement of Theorem 3.2] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/a$, 
+\begin{theorem*}[Restatement of Theorem 3.2] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$, 
 \[
 \tau^*_i(t,\lambda) = \min\left(\max\left(\frac{\xi(b_i,t)-\lambda}{\xi(b_i,t)\lambda},0\right),b_i\right),
 \]
@@ -258,10 +258,10 @@ Moreover, the mapping $t \mapsto \min_\lambda g(t,\lambda;s)$ is convex and the 
 \end{theorem*}
 
 \begin{proof}
-Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that 
+Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
-= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
+= \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 For any fixed $t\geq0$, we begin by rewriting the inner maximization problem
 in terms of 
@@ -284,7 +284,7 @@ and thus $\tau\mapsto\mathcal{L}\left(\tau,\lambda;t\right)$ is concave.
 The argument maximizing $\tau\mapsto\mathcal{L}(\tau,\lambda;t)$
 is given by $\tau_{i}^{*}(t,\lambda)$. Thus $g(t,\lambda)=\max_{\tau}\mathcal{L}(\tau,\lambda;t)$,
 the Lagrangian dual for a convex optimization problem with convex
-constraints. There is at least one feasible point, namely $\tau_{i}=b_i\mu/\sum_{j}a_{j}$,
+constraints. There is at least one feasible point, namely $\tau_{i}=b_i\mu/\sum_{j}b_{j}$,
 so strong duality holds and 
 \[
 \max_{\substack{\tau\in\prod_{i}[0,b_i]\\
