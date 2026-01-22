@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """
-Compare Hoeffding and Becitbam bounds for sums of bounded random variables
+Compare Hoeffding, Becitbam, and Bentkus bounds for sums of bounded random variables
 where the bounds come from a Dirichlet (n-simplex) distribution.
 
 This script generates a random vector `a` from the n-simplex, considers
 n independent variables where each variable X_i is bounded in [0, a_i],
 assumes the overall mean is known to be mu, and evaluates bounds on P(S > s)
 for the sum S = sum_i X_i.
+
+The Bentkus bound rescales all intervals by the maximum interval width so that
+max(a_i) = 1, then compares to a Binomial(n, p) distribution where p = mu_rescaled/n.
+To avoid log-concave interpolation, Bentkus bounds are only plotted at s values
+where the rescaled s is an integer.
 """
 
 import numpy as np
@@ -15,9 +20,9 @@ import sys
 import os
 
 # Add the parent directory to path to import becitbam
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from becitbam import hoeffding_thm2, sharp_chernoff
+from becitbam import hoeffding_thm2, sharp_chernoff, bentkus
 
 
 def generate_simplex_vector(n, seed=42):
@@ -45,7 +50,7 @@ def generate_simplex_vector(n, seed=42):
 
 def compute_bounds(s_values, mu, a):
     """
-    Compute Hoeffding and Becitbam bounds for P(S > s).
+    Compute Hoeffding, Becitbam, and Bentkus bounds for P(S > s).
     
     Parameters
     ----------
@@ -62,9 +67,12 @@ def compute_bounds(s_values, mu, a):
         Hoeffding bound on P(S > s) for each s
     becitbam_bounds : numpy.ndarray
         Becitbam (sharp Chernoff) bound on P(S > s) for each s
+    bentkus_bounds : numpy.ndarray
+        Bentkus bound on P(S > s) for each s (rescaled to max interval = 1)
     """
     hoeffding_bounds = []
     becitbam_bounds = []
+    bentkus_bounds = []
     
     for s in s_values:
         # Hoeffding bound (returns log probability)
@@ -74,8 +82,12 @@ def compute_bounds(s_values, mu, a):
         # Becitbam sharp Chernoff bound (returns log probability)
         log_becitbam = sharp_chernoff(s, mu, a)
         becitbam_bounds.append(np.exp(log_becitbam))
+        
+        # Bentkus bound (returns probability directly)
+        bentkus_prob = bentkus(s, mu, a)
+        bentkus_bounds.append(bentkus_prob)
     
-    return np.array(hoeffding_bounds), np.array(becitbam_bounds)
+    return np.array(hoeffding_bounds), np.array(becitbam_bounds), np.array(bentkus_bounds)
 
 
 def main(n=100, seed=42):
@@ -94,9 +106,10 @@ def main(n=100, seed=42):
     
     # The sum of a is 1 (since it's from the simplex)
     A = np.sum(a)  # Should be 1.0
-    print(f"Generated simplex vector with n={n}, sum(a)={A:.6f}")
+    b = np.max(a)  # Maximum interval width
+    print(f"Generated simplex vector with n={n}, sum(a)={A:.6f}, max(a)={b:.6f}")
     
-    # Values of s to evaluate (range from 0.8 to 1.0)
+    # Values of s to evaluate (continuous range)
     s_values = np.linspace(0.8, 1.0, 100)
     
     # Values of mu to consider
@@ -110,7 +123,7 @@ def main(n=100, seed=42):
     
     for mu, color in zip(mu_values, colors):
         print(f"Computing bounds for mu={mu}...")
-        hoeffding_bounds, becitbam_bounds = compute_bounds(s_values, mu, a)
+        hoeffding_bounds, becitbam_bounds, bentkus_bounds = compute_bounds(s_values, mu, a)
         
         # Plot Hoeffding bound (dashed line)
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
@@ -119,10 +132,15 @@ def main(n=100, seed=42):
         # Plot Becitbam bound (solid line)
         ax.plot(s_values, becitbam_bounds, '-', color=color,
                 label=f'Becitbam (μ={mu})', linewidth=1.5)
+        
+        # Plot Bentkus bound (dotted line)
+        # The bentkus function internally rounds s/max(a) to integer, creating step function behavior
+        ax.plot(s_values, bentkus_bounds, ':', color=color,
+                label=f'Bentkus (μ={mu})', linewidth=1.5)
     
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.set_title(f'Comparison of Hoeffding and Becitbam Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
+    ax.set_title(f'Comparison of Hoeffding, Becitbam, and Bentkus Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
     ax.legend(loc='lower left', fontsize=10)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
@@ -140,7 +158,7 @@ def main(n=100, seed=42):
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare Hoeffding and Becitbam bounds')
+    parser = argparse.ArgumentParser(description='Compare Hoeffding, Becitbam, and Bentkus bounds')
     parser.add_argument('--n', type=int, default=100, help='Dimension of the simplex (default: 100)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility (default: 42)')
     

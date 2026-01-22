@@ -100,6 +100,108 @@ def hoeffding_thm2(s,mu,a):
         return -2*hoeffding_t*hoeffding_t / np.sum(a**2)
 
 
+def bentkus(s, mu, a):
+    '''
+    Bentkus bound for P(S >= s) by rescaling to maximum interval width = 1.
+
+    Based on Bentkus (2004) Theorem 1.2: For independent random variables X_i in [0, 1]
+    with total mean mu, we have P(S >= s) <= e * P°(Binomial(n, p) >= s) where p = mu/n.
+
+    This function rescales the problem so that max(a_i) = 1, then applies the bound.
+    For non-integer s (after rescaling), log-linear interpolation is used between
+    adjacent integer points as specified in the Bentkus paper (equation 1.8):
+        B°(z) = B^(1-λ)(x) * B^λ(y)  where z = (1-λ)x + λy
+
+    Let
+
+        S = sum_i^n X_i
+        X_i in [0, a_i]
+        sum E[X_i] = mu
+
+    Parameters
+    ----------
+    s : float
+        Threshold value
+    mu : float
+        Mean of the sum S
+    a : numpy.ndarray
+        Upper bounds for each variable (X_i in [0, a_i])
+
+    Returns
+    -------
+    float
+        Bentkus bound on P(S >= s) (probability, not log probability)
+    '''
+    from scipy.stats import binom
+
+    a = np.asarray(a)
+    n = len(a)
+    b = np.max(a)  # maximum interval width
+
+    # Rescale: after rescaling, all variables are in [0, a_i/b] which is in [0, 1]
+    # The rescaled threshold and mean
+    s_rescaled = s / b
+    mu_rescaled = mu / b
+
+    # Mean probability per variable for the comparison Binomial
+    p = mu_rescaled / n
+
+    # Ensure p is in valid range [0, 1]
+    p = np.clip(p, 0.0, 1.0)
+
+    # Handle edge cases
+    if s_rescaled > n:
+        return 0.0
+    if s_rescaled <= 0:
+        return 1.0
+
+    # Get the floor and ceiling integer points for interpolation
+    x = int(np.floor(s_rescaled))  # lower integer point
+    y = int(np.ceil(s_rescaled))   # upper integer point
+
+    # If s_rescaled is exactly an integer, no interpolation needed
+    if x == y or s_rescaled == x:
+        if x <= 0:
+            binomial_tail = 1.0
+        elif x > n:
+            binomial_tail = 0.0
+        else:
+            binomial_tail = binom.sf(x - 1, n, p)
+    else:
+        # Log-linear interpolation: B°(z) = B^(1-λ)(x) * B^λ(y)
+        # where z = (1-λ)x + λy, so λ = (z - x) / (y - x) = z - x (since y - x = 1)
+        lam = s_rescaled - x
+
+        # Get binomial survival function at integer points x and y
+        if x <= 0:
+            B_x = 1.0
+        else:
+            B_x = binom.sf(x - 1, n, p)
+
+        if y > n:
+            B_y = 0.0
+        else:
+            B_y = binom.sf(y - 1, n, p)
+
+        # Log-linear interpolation: B°(z) = B_x^(1-λ) * B_y^λ
+        # Handle edge cases where B_x or B_y is 0
+        if B_y <= 0:
+            # If B_y is 0, then B°(z) should be 0 for any λ > 0
+            binomial_tail = 0.0
+        elif B_x <= 0:
+            # This shouldn't happen if x > 0, but handle it
+            binomial_tail = 0.0
+        else:
+            # B°(z) = B_x^(1-λ) * B_y^λ = exp((1-λ)*log(B_x) + λ*log(B_y))
+            binomial_tail = np.exp((1 - lam) * np.log(B_x) + lam * np.log(B_y))
+
+    # Bentkus constant is e ≈ 2.72
+    bentkus_prob = np.e * binomial_tail
+
+    # Probability cannot exceed 1
+    return min(bentkus_prob, 1.0)
+
+
 
 r'''
  _   _       _     _          _                            __  __
