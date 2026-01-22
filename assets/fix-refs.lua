@@ -55,6 +55,7 @@ end
 function Link(el)
   local target = el.target
   local label = target:sub(2)  -- Remove the leading #
+  local existing_text = pandoc.utils.stringify(el.content)
   
   if target:match("^#eq:") then
     local num = equation_numbers[label]
@@ -64,15 +65,18 @@ function Link(el)
   elseif target:match("^#thm:") then
     local num = theorem_numbers[label]
     if num then
-      -- Include "Theorem" prefix for theorem references
-      el.content = {pandoc.Str("Theorem " .. tostring(num))}
+      -- Just output the number - the LaTeX source has "Theorem~\ref" which provides the prefix
+      el.content = {pandoc.Str(tostring(num))}
     end
   elseif target:match("^#fig:") then
-    -- For figure references, prepend "Figure " to existing content
-    -- Get existing text content
-    local existing_text = pandoc.utils.stringify(el.content)
-    if existing_text and existing_text ~= "" then
-      el.content = {pandoc.Str("Figure " .. existing_text)}
+    -- For figure references, just use the number if we can extract it
+    -- The LaTeX source has "Figure~\ref" which provides the prefix
+    if existing_text and existing_text:match("^%d+$") then
+      -- Already just a number, keep it
+    elseif existing_text and existing_text:match("^Figure%s*(%d+)$") then
+      -- Has "Figure X" format, extract just the number
+      local num = existing_text:match("^Figure%s*(%d+)$")
+      el.content = {pandoc.Str(num)}
     end
   end
   return el
@@ -83,6 +87,8 @@ function Span(el)
   if el.attributes["data-reference-type"] == "ref" then
     local label = el.attributes["data-reference"]
     if label then
+      local existing_text = pandoc.utils.stringify(el.content)
+      
       -- Check equations
       local num = equation_numbers[label]
       if num then
@@ -91,23 +97,17 @@ function Span(el)
           "#" .. label
         )
       end
-      -- Check theorems - include "Theorem" prefix
+      -- Check theorems - just output the number (LaTeX source has "Theorem~\ref")
       num = theorem_numbers[label]
       if num then
         return pandoc.Link(
-          {pandoc.Str("Theorem " .. tostring(num))},
+          {pandoc.Str(tostring(num))},
           "#" .. label
         )
       end
-      -- Check figures - include "Figure" prefix
+      -- Check figures - just keep existing content or extract number
       if label:match("^fig:") then
-        local existing_text = pandoc.utils.stringify(el.content)
-        if existing_text and existing_text ~= "" then
-          return pandoc.Link(
-            {pandoc.Str("Figure " .. existing_text)},
-            "#" .. label
-          )
-        end
+        -- Keep existing behavior, LaTeX has "Figure~\ref"
       end
     end
   end
