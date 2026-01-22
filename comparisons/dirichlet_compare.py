@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Compare Hoeffding, Becitbam, and Bentkus bounds for sums of bounded random variables
+Compare Hoeffding, Tight Chernoff, and Bentkus bounds for sums of bounded random variables
 where the bounds come from a Dirichlet (n-simplex) distribution.
 
 This script generates a random vector `a` from the n-simplex, considers
@@ -8,10 +8,9 @@ n independent variables where each variable X_i is bounded in [0, a_i],
 assumes the overall mean is known to be mu, and evaluates bounds on P(S > s)
 for the sum S = sum_i X_i.
 
-The Bentkus bound rescales all intervals by the maximum interval width so that
+The Bentkus Thm 1.2 bound rescales all intervals by the maximum interval width so that
 max(a_i) = 1, then compares to a Binomial(n, p) distribution where p = mu_rescaled/n.
-To avoid log-concave interpolation, Bentkus bounds are only plotted at s values
-where the rescaled s is an integer.
+The Bentkus Cor 1.4 bound uses RMS scale with symmetric Bernoulli comparison.
 """
 
 import numpy as np
@@ -22,7 +21,7 @@ import os
 # Add the parent directory to path to import becitbam
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from becitbam import hoeffding_thm2, sharp_chernoff, bentkus
+from becitbam import hoeffding_thm2, sharp_chernoff, bentkus, bentkus_binomial
 
 
 def generate_simplex_vector(n, seed=42):
@@ -50,7 +49,7 @@ def generate_simplex_vector(n, seed=42):
 
 def compute_bounds(s_values, mu, a):
     """
-    Compute Hoeffding, Becitbam, and Bentkus bounds for P(S > s).
+    Compute Hoeffding, Tight Chernoff, and Bentkus bounds for P(S > s).
     
     Parameters
     ----------
@@ -65,29 +64,37 @@ def compute_bounds(s_values, mu, a):
     -------
     hoeffding_bounds : numpy.ndarray
         Hoeffding bound on P(S > s) for each s
-    becitbam_bounds : numpy.ndarray
-        Becitbam (sharp Chernoff) bound on P(S > s) for each s
-    bentkus_bounds : numpy.ndarray
-        Bentkus bound on P(S > s) for each s (rescaled to max interval = 1)
+    tight_chernoff_bounds : numpy.ndarray
+        Tight Chernoff (sharp Chernoff) bound on P(S > s) for each s
+    bentkus_thm12_bounds : numpy.ndarray
+        Bentkus Thm 1.2 bound on P(S > s) for each s (rescaled to max interval = 1)
+    bentkus_cor14_bounds : numpy.ndarray
+        Bentkus Cor 1.4 bound on P(S > s) for each s (using RMS scale)
     """
     hoeffding_bounds = []
-    becitbam_bounds = []
-    bentkus_bounds = []
+    tight_chernoff_bounds = []
+    bentkus_thm12_bounds = []
+    bentkus_cor14_bounds = []
     
     for s in s_values:
         # Hoeffding bound (returns log probability)
         log_hoeffding = hoeffding_thm2(s, mu, a)
         hoeffding_bounds.append(np.exp(log_hoeffding))
         
-        # Becitbam sharp Chernoff bound (returns log probability)
-        log_becitbam = sharp_chernoff(s, mu, a)
-        becitbam_bounds.append(np.exp(log_becitbam))
+        # Tight Chernoff bound (returns log probability)
+        log_tight_chernoff = sharp_chernoff(s, mu, a)
+        tight_chernoff_bounds.append(np.exp(log_tight_chernoff))
         
-        # Bentkus bound (returns probability directly)
-        bentkus_prob = bentkus(s, mu, a)
-        bentkus_bounds.append(bentkus_prob)
+        # Bentkus Thm 1.2 bound (returns probability directly)
+        bentkus_thm12_prob = bentkus(s, mu, a)
+        bentkus_thm12_bounds.append(bentkus_thm12_prob)
+        
+        # Bentkus Cor 1.4 bound (returns probability directly)
+        bentkus_cor14_prob = bentkus_binomial(s, mu, a)
+        bentkus_cor14_bounds.append(bentkus_cor14_prob)
     
-    return np.array(hoeffding_bounds), np.array(becitbam_bounds), np.array(bentkus_bounds)
+    return (np.array(hoeffding_bounds), np.array(tight_chernoff_bounds), 
+            np.array(bentkus_thm12_bounds), np.array(bentkus_cor14_bounds))
 
 
 def main(n=100, seed=42):
@@ -123,25 +130,28 @@ def main(n=100, seed=42):
     
     for mu, color in zip(mu_values, colors):
         print(f"Computing bounds for mu={mu}...")
-        hoeffding_bounds, becitbam_bounds, bentkus_bounds = compute_bounds(s_values, mu, a)
+        hoeffding_bounds, tight_chernoff_bounds, bentkus_thm12_bounds, bentkus_cor14_bounds = compute_bounds(s_values, mu, a)
         
         # Plot Hoeffding bound (dashed line)
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
                 label=f'Hoeffding (μ={mu})', linewidth=1.5)
         
-        # Plot Becitbam bound (solid line)
-        ax.plot(s_values, becitbam_bounds, '-', color=color,
-                label=f'Becitbam (μ={mu})', linewidth=1.5)
+        # Plot Tight Chernoff bound (solid line)
+        ax.plot(s_values, tight_chernoff_bounds, '-', color=color,
+                label=f'Tight Chernoff (μ={mu})', linewidth=1.5)
         
-        # Plot Bentkus bound (dotted line)
-        # The bentkus function internally rounds s/max(a) to integer, creating step function behavior
-        ax.plot(s_values, bentkus_bounds, ':', color=color,
-                label=f'Bentkus (μ={mu})', linewidth=1.5)
+        # Plot Bentkus Thm 1.2 bound (dotted line)
+        ax.plot(s_values, bentkus_thm12_bounds, ':', color=color,
+                label=f'Bentkus Thm 1.2 (μ={mu})', linewidth=1.5)
+        
+        # Plot Bentkus Cor 1.4 bound (markers)
+        ax.plot(s_values, bentkus_cor14_bounds, 'x', color=color,
+                label=f'Bentkus Cor 1.4 (μ={mu})', markersize=4, markevery=5)
     
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.set_title(f'Comparison of Hoeffding, Becitbam, and Bentkus Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
-    ax.legend(loc='lower left', fontsize=10)
+    ax.set_title(f'Comparison of Hoeffding, Tight Chernoff, and Bentkus Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
+    ax.legend(loc='lower left', fontsize=8, ncol=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
@@ -158,7 +168,7 @@ def main(n=100, seed=42):
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare Hoeffding, Becitbam, and Bentkus bounds')
+    parser = argparse.ArgumentParser(description='Compare Hoeffding, Tight Chernoff, and Bentkus bounds')
     parser.add_argument('--n', type=int, default=100, help='Dimension of the simplex (default: 100)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility (default: 42)')
     
