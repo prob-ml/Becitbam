@@ -27,6 +27,8 @@ pandoc manuscript/main.tex \
     --to=html5 \
     --standalone \
     --mathjax \
+    --number-sections \
+    --lua-filter=assets/fix-refs.lua \
     --css=style.css \
     --metadata title="A new tail bound for the sum of bounded independent random variables" \
     --citeproc \

@@ -115,15 +115,6 @@ p {
     border-left: 2px solid var(--border-color);
 }
 
-.proof::before {
-    content: "Proof. ";
-    font-style: italic;
-}
-
-.proof::after {
-    content: " □";
-}
-
 /* Figures */
 figure {
     margin: 2rem auto;

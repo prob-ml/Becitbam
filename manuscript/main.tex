@@ -15,8 +15,6 @@
 \newtheorem*{theorem*}{Theorem}
 
 %\pdfminorversion=4
-% NOTE: To produce blinded version, replace "0" with "1" below.
-\newcommand{\blind}{0}
 
 % DON'T change margins - should be 1 inch all around.
 \addtolength{\oddsidemargin}{-.5in}%
@@ -36,29 +34,13 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\if0\blind
-{
-  \title{\bf A new tail bound for the sum of bounded independent random variables}
-  \author{Jackson Loper\\
-  %\thanks{
-    % The authors gratefully acknowledge \textit{please remember to list all relevant funding sources in the unblinded version}}\hspace{.2cm}\\
-    Department of Statistics, University of Michigan\\
-    and \\
-    Jeffrey Regier \\
-    Department of Statistics, University of Michigan}
-  \maketitle
-} \fi
-
-\if1\blind
-{
-  \bigskip
-  \bigskip
-  \bigskip
-  \begin{center}
-    {\LARGE\bf A new tail bound for the sum of bounded independent random variables}
-\end{center}
-  \medskip
-} \fi
+\title{\bf A new tail bound for the sum of bounded independent random variables}
+\author{Jackson Loper\\
+Department of Statistics, University of Michigan\\
+and \\
+Jeffrey Regier \\
+Department of Statistics, University of Michigan}
+\maketitle
 
 \bigskip
 \begin{abstract}
@@ -85,9 +67,9 @@ Hoeffding's seminal work also included a less well-known bound, which is applica
 \begin{equation} \label{eq:hoeffspecial}
 \mathbb{P}(S \geq \mu+t) \leq \left(\frac{\mu}{\mu+t}\right)^{n\mu+nt} \left(\frac{1-\mu}{1-\mu-t}\right)^{n-n\mu-nt}.
 \end{equation}
-We refer to \Cref{eq:hoeffspecial} as the ``specialized Hoeffding inequality.'' \Cref{eq:hoeffspecial} is tighter than \Cref{eq:hoeffgeneral} in situations where both are applicable.  
+We refer to Equation~\ref{eq:hoeffspecial} as the ``specialized Hoeffding inequality.'' Equation~\ref{eq:hoeffspecial} is tighter than Equation~\ref{eq:hoeffgeneral} in situations where both are applicable.  
 
-In this article, we propose a computable bound for the sum of independent random variables for situations in which the expected value of the sum is known and each random variable is known to lie in a fixed interval of arbitrary size, which may differ among variables.  Such bounds are useful for hypothesis testing regarding the sum's expected value based on an observed realization.  The new bound can be calculated by solving a two-dimensional convex optimization problem.  The result reduces to \Cref{eq:hoeffspecial} in the special case that $b_i=1$ for each $i \in \{1,\ldots,n\}$.  We use simulations to demonstrate that the new bound can be much tighter than the general Hoeffding inequality in situations where both are applicable and the specialized Hoeffding inequality is not.
+In this article, we propose a computable bound for the sum of independent random variables for situations in which the expected value of the sum is known and each random variable is known to lie in a fixed interval of arbitrary size, which may differ among variables.  Such bounds are useful for hypothesis testing regarding the sum's expected value based on an observed realization.  The new bound can be calculated by solving a two-dimensional convex optimization problem.  The result reduces to Equation~\ref{eq:hoeffspecial} in the special case that $b_i=1$ for each $i \in \{1,\ldots,n\}$.  We use simulations to demonstrate that the new bound can be much tighter than the general Hoeffding inequality in situations where both are applicable and the specialized Hoeffding inequality is not.
 
 \section{Notation and preliminaries}
 
@@ -113,35 +95,35 @@ This leads to a tail bound for $S$ in terms of $\varphi^*$:
 \begin{equation} \label{eq:chernoff}
 \mathbb{P} \left (S \geq s\right) \leq \exp(\varphi^*_{\boldsymbol{b},\mu}(s)).
 \end{equation}
-\Cref{eq:chernoff} is the worst-case Chernoff--Cram\'er bound for a sum of independent random variables $(X_1,\ldots X_n)$ with each $X_i \in [0,b_i]$ and $\sum_{i=1}^n \mathbb{E}[X_i]=\mu$.  
+Equation~\ref{eq:chernoff} is the worst-case Chernoff--Cram\'er bound for a sum of independent random variables $(X_1,\ldots X_n)$ with each $X_i \in [0,b_i]$ and $\sum_{i=1}^n \mathbb{E}[X_i]=\mu$.  
 
-To compute the right-hand side of \Cref{eq:chernoff}, \citet{hoeffding_probability_1963} considers two different readily computable expressions for $\varphi^*$.  In one theorem, a formula for $\varphi^*_{\boldsymbol{b},\mu}$ is provided for the special case in which $b_1=\cdots=b_m=1$, leading to the specialized Hoeffding inequality, \Cref{eq:hoeffspecial}.  In another theorem, an \emph{upper bound} is produced for $\varphi^*_{\boldsymbol{b},\mu}$ in the general case of arbitrary $\boldsymbol{b}$, namely,
+To compute the right-hand side of Equation~\ref{eq:chernoff}, \citet{hoeffding_probability_1963} considers two different readily computable expressions for $\varphi^*$.  In one theorem, a formula for $\varphi^*_{\boldsymbol{b},\mu}$ is provided for the special case in which $b_1=\cdots=b_m=1$, leading to the specialized Hoeffding inequality, Equation~\ref{eq:hoeffspecial}.  In another theorem, an \emph{upper bound} is produced for $\varphi^*_{\boldsymbol{b},\mu}$ in the general case of arbitrary $\boldsymbol{b}$, namely,
 $
 \varphi^*_{\boldsymbol{b},\mu}(s)\leq -2(s-\mu)^2/\sum_{i=1}^m b_i^2,
 $
 leading to the general Hoeffding inequality.  
 
 Our contribution in the next section is to show how $\varphi^*$ can be \textit{exactly} computed for arbitrary interval lengths $\boldsymbol{b}$.
-By substituting this exact value of $\varphi^*$ into \Cref{eq:chernoff}, an improved tail bound for the sum of bounded independent random variables follows.
+By substituting this exact value of $\varphi^*$ into Equation~\ref{eq:chernoff}, an improved tail bound for the sum of bounded independent random variables follows.
 
 \section{Optimizing the worst-case Chernoff--Cram\'er bound}
 
 We now show that $\varphi^*$ (cf. Equation~\ref{eq:varphistar}) can be computed by solving a two-dimensional convex optimization problem.  We begin by expressing $\varphi^*$ as the solution to a high-dimensional convex optimization problem and then demonstrate how to reduce this problem to a more tractable two-dimensional one.
 
-\Cref{eq:varphistar} defines $\varphi^*$ as the solution to a maximin problem that involves maximizing over distributions and minimizing over values of $t>0$.  The inner one-dimensional minimization over $t$ can be commuted with the outer infinite-dimensional maximization over $\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}$.  Once the minimization and maximization operators have been commuted, the inner problem reduces to a finite-dimensional optimization problem.  This leads to a new expression for $\varphi^*$, as shown below.
+Equation~\ref{eq:varphistar} defines $\varphi^*$ as the solution to a maximin problem that involves maximizing over distributions and minimizing over values of $t>0$.  The inner one-dimensional minimization over $t$ can be commuted with the outer infinite-dimensional maximization over $\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}$.  Once the minimization and maximization operators have been commuted, the inner problem reduces to a finite-dimensional optimization problem.  This leads to a new expression for $\varphi^*$, as shown below.
 
 \begin{theorem} \label{thm:tightchernoff} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let 
 \begin{align*}
 T=\left\{\tau\in \prod_{i=1}^m [0,b_i] : \sum_{i=1}^m \tau_i = \mu\right\}.
 \end{align*}
-Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from \Cref{eq:varphistar} can be expressed as 
+Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 \end{theorem}
 
-The high-dimensional minimax problem from \Cref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
+The high-dimensional minimax problem from Theorem~\ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
 
 \begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/a$, 
 \[
@@ -151,7 +133,7 @@ and
 \[
 g(t,\lambda;s) = \sum_i \log\left(1+\xi(b_i,t)\tau_i^*(t,\lambda)\right) + \lambda\left(\mu - \sum_i \tau_i^*(t,\lambda)\right)- ts.
 \]
-Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from \Cref{eq:varphistar} can be expressed as 
+Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \[
 \varphi^*_{\boldsymbol{b},\mu}(s) = \min_{t,\lambda \geq 0} g(t,\lambda;s).
 \]
@@ -168,7 +150,7 @@ This theorem suggests two methods for computing $\varphi^*$.  One method involve
 \begin{center}
 \includegraphics[width=5in]{pics/tailboundcomparisons.pdf}
   \caption{
-  The new bounds are tighter than the general Hoeffding inequality.  We consider three choices of fixed expected value, $\mu \in \{0.8, 0.9, 0.95\}$.  We compare tail bounds based on the general Hoeffding inequality \citep[Theorem 2]{hoeffding_probability_1963} with the new bounds; the latter are calculated using \Cref{thm:lowd}. The top plot shows the bounds.  The bottom plot demonstrates the factor of improvement, showing ratios of the two bounds on a log scale.
+  The new bounds are tighter than the general Hoeffding inequality.  We consider three choices of fixed expected value, $\mu \in \{0.8, 0.9, 0.95\}$.  We compare tail bounds based on the general Hoeffding inequality \citep[Theorem 2]{hoeffding_probability_1963} with the new bounds; the latter are calculated using Theorem~\ref{thm:lowd}. The top plot shows the bounds.  The bottom plot demonstrates the factor of improvement, showing ratios of the two bounds on a log scale.
   }\label{fig:tailboundcomparisons}
 \end{center}
 \end{figure}
@@ -177,13 +159,13 @@ We use simulations to assess the degree of improvement over the general Hoeffdin
 
 For any fixed value of $\mu$ and any value $s \geq \mu$, our new results provide an upper bound on $\mathbb{P}(S>s)$, assuming $\mathbb{E}[S]=\mu$.  The general Hoeffding inequality can also be used to produce a bound on $\mathbb{P}(S>s)$, offering a natural point of comparison.  These bounds on $\mathbb{P}(S>s)$ have practical implications, such as facilitating hypothesis testing for $\mathbb{E}[S]=\mu$ given an observed realization of $S$.
 
-\Cref{fig:tailboundcomparisons} compares our new bounds with the general Hoeffding inequality for $\mu \in \{0.8, 0.9, 0.95\}$, showing how they vary as a function of $s$. In many cases, our bounds are orders of magnitude tighter than those derived from the general Hoeffding inequality, demonstrating their advantage in tail estimation.
+Figure~\ref{fig:tailboundcomparisons} compares our new bounds with the general Hoeffding inequality for $\mu \in \{0.8, 0.9, 0.95\}$, showing how they vary as a function of $s$. In many cases, our bounds are orders of magnitude tighter than those derived from the general Hoeffding inequality, demonstrating their advantage in tail estimation.
 
 
 \begin{appendix}
 \section*{Proofs}\label{appn}
 
-To prove \Cref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from \Cref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed expected value $\mu$, let
+To prove Theorem~\ref{thm:tightchernoff}, it is convenient to view $\mathcal{M}_{\boldsymbol{b},\mu}$ from Equation~\ref{eq:mdef} as a topological vector space.  For any scalar $b\geq 0$, let $\mathcal{M}_b$ denote the space of probability measures with support on $[0,b]$.  Endowing $\mathcal{M}_b$ with the weak-$*$ topology, we view $\mathcal{M}_b$ as a topological vector space.  Note that $\mathcal{M}_b$ is compact and convex.  For any values $\boldsymbol{b}\in ({\mathbb{R}^+})^m$ and fixed expected value $\mu$, let
 \[
 \mathcal{M}_{\boldsymbol{b},\mu} = \left\{\boldsymbol{p} \in \prod_i \mathcal{M}_{b_i}:\ \sum_i\mathbb{E}_{X_i \sim p_i}[X_i] \leq \mu\right\}.
 \]
@@ -191,7 +173,7 @@ Here
 $\prod_i \mathcal{M}_{b_i}$
 denotes a direct sum of a topological vector spaces.  For example, if $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$ then $\boldsymbol{p}=(p_1,\ldots, p_m)$ where each $p_i \in \mathcal{M}_{b_i}$.  Recall that addition is computed in the following manner for such direct sum spaces: for any $\boldsymbol{p},\boldsymbol{q} \in \mathcal{M}_{\boldsymbol{b},\mu}$, $(\boldsymbol{p}+\boldsymbol{q})=((p_1+q_1),\ldots, (p_m+q_m))$.  This seemingly excessive formality is necessary to clarify that $\mathcal{M}_{\boldsymbol{b},\mu}$ is, in fact, convex.
 
-\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from \Cref{eq:varphistar} can be expressed as 
+\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
@@ -253,7 +235,7 @@ and
 \[
 g(t,\lambda;s) = \sum_i \log\left(1+\xi(b_i,t)\tau_i^*(t,\lambda)\right) + \lambda\left(\mu - \sum_i \tau_i^*(t,\lambda)\right)- ts.
 \]
-Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from \Cref{eq:varphistar} can be expressed as 
+Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
 \[
 \varphi^*_{\boldsymbol{b},\mu}(s) = \min_{t,\lambda \geq 0} g(t,\lambda;s).
 \]
@@ -261,7 +243,7 @@ Moreover, the mapping $t \mapsto \min_\lambda g(t,\lambda;s)$ is convex and the 
 \end{theorem*}
 
 \begin{proof}
-Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.  Recall from \Cref{thm:tightchernoff} that 
+Let $T=\{\tau\in \prod_{i=1}^m [0,b_i]: \sum_{i=1}^m \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that 
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^m \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
