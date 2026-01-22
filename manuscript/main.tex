@@ -238,7 +238,21 @@ distribution,
 \[
 \log \mathbb{E}_{p_{i}}\left[\exp\left(tB_{i}\right)\right]=\log\left(1+\xi(b_i,t)\tau_{i}\right).
 \]
-Note that this is monotone increasing in $\tau$, so the constraint $\sum_i \tau_i \leq \mu$ may be replaced with the constraint $\sum_i \tau_i=\mu$ without changing the result.  Furthermore, since the original constraint was an inequality ($\leq \mu$), the Lagrange multiplier $\lambda$ is constrained to be nonnegative.  Our problem thus reduces to the desired form.
+Summing over $i$, we obtain that
+\begin{gather*}
+\varphi^*_{\boldsymbol{b},\mu}(s)
+= \min_{t\geq 0} \left(\max_{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i \leq \mu} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
+\end{gather*}
+This is very nearly the statement we seek to prove.  The only remaining impediment is that the maximization over $f$ that we 
+have defined permits $\sum_i\tau_i \leq \mu$, whereas we claim in the theorem statement that it is sufficient to only consider
+cases in which $\sum_i\tau_i = \mu$.  
+
+To see that this is true, note that the objective is coordinatewise nondecreasing in $\tau$ (strictly increasing if $t>0$).  Hence, if a maximizer
+$\tau^\star$ under $\sum_i\tau_i\le \mu$ had slack, i.e.\ $\sum_i\tau_i^\star<\mu$, then since
+$\mu\le\sum_i b_i$ there exists some $j$ with $\tau_j^\star<b_j$; increasing $\tau_j^\star$ by
+$\varepsilon=\min\{b_j-\tau_j^\star,\ \mu-\sum_i\tau_i^\star\}>0$ preserves feasibility and
+(in case $t>0$) strictly increases $F$, a contradiction.  Thus the maximum is attained at
+$\sum_i\tau_i=\mu$ (and when $t=0$ the objective is constant, so the value is unchanged regardless of $\tau$).
 
 \end{proof}
 
