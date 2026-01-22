@@ -59,7 +59,11 @@ We construct a new tail bound for the sum of independent random variables for si
 
 \section{Introduction}
 
-The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$.  The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
+The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$.  This assumption is without loss of generality because we can always translate each variable by defining $Y_i = X_i - a_i$, which lies in $[0, b_i - a_i]$, and the sum $\sum_i Y_i = \sum_i X_i - \sum_i a_i$ differs from the original sum by a known constant.  The tail bound for $S = \sum_i X_i$ then follows directly from the bound for $\sum_i Y_i$.  This reduction is possible because we are interested in one-sided tail bounds of the form $\mathbb{P}(S \geq s)$; the translation preserves the structure of the problem.
+
+We note that this setting differs from another line of work that considers the case where $\mathbb{E}[X_i] = 0$ for every $i$ and the bounds take the form $a_i < 0 < b_i$ with both $a_i$ and $b_i$ known per variable.  In that symmetric-around-zero setting, the sidedness of the intervals (i.e., the magnitudes of $a_i$ and $b_i$) very much matters and cannot simply be shifted away.  The assumption $\mathbb{E}[X_i] = 0$ for each variable provides additional structure that can be exploited for tighter bounds.  In contrast, our setting assumes only that each $X_i \in [0, b_i]$ with known overall mean $\mu = \sum_i \mathbb{E}[X_i]$, without knowledge of the individual means.
+
+The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
 \begin{equation} \label{eq:hoeffgeneral}
 \mathbb{P}(S \geq \mu+t) \leq \exp\left(-2t^2 / \sum_{i=1}^n b_i^2 \right).
 \end{equation}
@@ -159,7 +163,7 @@ This theorem suggests two methods for computing $\varphi^*$.  One method involve
 \end{center}
 \end{figure}
 
-We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{200}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 200 independent random variables, $(X_1,\ldots,X_{200})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,200\}$.  
+We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{100}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 100 independent random variables, $(X_1,\ldots,X_{100})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,100\}$.  The value of $n$ affects the tightness of all bounds, but the overall scaling of the $b_i$ values does not matter: what is relevant is the relative sizes of the intervals, so we normalize the intervals so that their maximum possible sum is 1.  
 
 For any fixed value of $\mu$ and any value $s \geq \mu$, our new results provide an upper bound on $\mathbb{P}(S>s)$, assuming $\mathbb{E}[S]=\mu$.  The general Hoeffding inequality can also be used to produce a bound on $\mathbb{P}(S>s)$, offering a natural point of comparison.  We also compare with the two Bentkus bounds \citep{bentkus2004hoeffding}: Theorem 1.2 requires all bounding intervals to be of the same size, while Corollary 1.4 uses RMS scale but requires centering information.  To apply Theorem 1.2 to heterogeneous intervals, we rescale all variables so that they lie within $[0, \max_i b_i]$.  For Corollary 1.4, we apply it using only the overall centering $S - \mu$.  These bounds on $\mathbb{P}(S>s)$ have practical implications, such as facilitating hypothesis testing for $\mathbb{E}[S]=\mu$ given an observed realization of $S$.
 
@@ -169,7 +173,7 @@ Figure~\ref{fig:tailboundcomparisons} compares our new Tight Chernoff bounds wit
 \begin{center}
 \includegraphics[width=5in]{comparisons/homogen_100.png}
   \caption{
-  Comparison of bounds for homogeneous intervals.  When all variables share the same bounding interval $[0,1]$, the specialized Hoeffding inequality (Equation~\ref{eq:hoeffspecial}) applies.  We compare the general Hoeffding inequality (``Hoeffding $\Sigma a^2$''), the specialized Hoeffding inequality (``Hoeffding KL''), our new Tight Chernoff bounds, Bentkus Theorem 1.2, and Bentkus Corollary 1.4.  Our Tight Chernoff bounds match the specialized Hoeffding inequality, as expected from Theorem~\ref{thm:lowd}.  In this homogeneous setting, the specialized Hoeffding inequality, the Bentkus Theorem 1.2 bound, and our Tight Chernoff bounds all provide much tighter bounds than the general Hoeffding inequality.  Bentkus Corollary 1.4 is less tight here due to its larger multiplicative constant ($2e^3/9 \approx 4.46$ vs.\ $e \approx 2.72$ for Theorem 1.2).
+  Comparison of bounds for homogeneous intervals.  When all variables share the same bounding interval $[0,1]$, the specialized Hoeffding inequality (Equation~\ref{eq:hoeffspecial}) applies.  We compare the general Hoeffding inequality, the specialized Hoeffding inequality, our new Tight Chernoff bounds, Bentkus Theorem 1.2, and Bentkus Corollary 1.4.  Our Tight Chernoff bounds match the specialized Hoeffding inequality, as expected from Theorem~\ref{thm:lowd}.  In this homogeneous setting, the specialized Hoeffding inequality, the Bentkus Theorem 1.2 bound, and our Tight Chernoff bounds all provide much tighter bounds than the general Hoeffding inequality.  Bentkus Corollary 1.4 is less tight here due to its larger multiplicative constant ($2e^3/9 \approx 4.46$ vs.\ $e \approx 2.72$ for Theorem 1.2).
   }\label{fig:homogencomparisons}
 \end{center}
 \end{figure}
@@ -320,6 +324,40 @@ t\mapsto\sum_{i}\log\left(1+\xi(b_i,t)\tau_{i}\right)-ts
 is convex in $t$. Thus $\min_{\lambda}g(t,\lambda)$ is also the
 pointwise maximum of a family of convex functions: it is also convex.
 \end{proof}  
+
+\section*{Sensitivity to Sample Size}\label{app:sensitivity}
+
+In this appendix, we present additional simulation results to demonstrate how the bounds vary with different sample sizes.  The main text presents results for $n=100$; here we show analogous results for $n=50$ and $n=200$.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=5in]{comparisons/dirichlet_50.png}
+  \caption{Comparison of bounds for heterogeneous intervals with $n=50$ variables.}\label{fig:dirichlet50}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=5in]{comparisons/homogen_50.png}
+  \caption{Comparison of bounds for homogeneous intervals with $n=50$ variables.}\label{fig:homogen50}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=5in]{comparisons/dirichlet_200.png}
+  \caption{Comparison of bounds for heterogeneous intervals with $n=200$ variables.}\label{fig:dirichlet200}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=5in]{comparisons/homogen_200.png}
+  \caption{Comparison of bounds for homogeneous intervals with $n=200$ variables.}\label{fig:homogen200}
+\end{center}
+\end{figure}
+
+As the sample size increases, all bounds become tighter, but the relative advantage of the Tight Chernoff bound over the general Hoeffding inequality remains substantial across all values of $n$ considered.
 
 \end{appendix}
 
