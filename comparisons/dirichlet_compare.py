@@ -22,7 +22,7 @@ import os
 # Add the parent directory to path to import becitbam
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from becitbam import hoeffding_thm2, sharp_chernoff, bentkus
+from becitbam import hoeffding_thm2, sharp_chernoff, bentkus, bentkus_binomial
 
 
 def generate_simplex_vector(n, seed=42):
@@ -69,10 +69,13 @@ def compute_bounds(s_values, mu, a):
         Becitbam (sharp Chernoff) bound on P(S > s) for each s
     bentkus_bounds : numpy.ndarray
         Bentkus bound on P(S > s) for each s (rescaled to max interval = 1)
+    bentkus_binomial_bounds : numpy.ndarray
+        Bentkus binomial bound on P(S > s) for each s (using RMS scale)
     """
     hoeffding_bounds = []
     becitbam_bounds = []
     bentkus_bounds = []
+    bentkus_binomial_bounds = []
     
     for s in s_values:
         # Hoeffding bound (returns log probability)
@@ -86,8 +89,13 @@ def compute_bounds(s_values, mu, a):
         # Bentkus bound (returns probability directly)
         bentkus_prob = bentkus(s, mu, a)
         bentkus_bounds.append(bentkus_prob)
+        
+        # Bentkus binomial bound (returns probability directly)
+        bentkus_binom_prob = bentkus_binomial(s, mu, a)
+        bentkus_binomial_bounds.append(bentkus_binom_prob)
     
-    return np.array(hoeffding_bounds), np.array(becitbam_bounds), np.array(bentkus_bounds)
+    return (np.array(hoeffding_bounds), np.array(becitbam_bounds), 
+            np.array(bentkus_bounds), np.array(bentkus_binomial_bounds))
 
 
 def main(n=100, seed=42):
@@ -123,7 +131,7 @@ def main(n=100, seed=42):
     
     for mu, color in zip(mu_values, colors):
         print(f"Computing bounds for mu={mu}...")
-        hoeffding_bounds, becitbam_bounds, bentkus_bounds = compute_bounds(s_values, mu, a)
+        hoeffding_bounds, becitbam_bounds, bentkus_bounds, bentkus_binom_bounds = compute_bounds(s_values, mu, a)
         
         # Plot Hoeffding bound (dashed line)
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
@@ -137,11 +145,15 @@ def main(n=100, seed=42):
         # The bentkus function internally rounds s/max(a) to integer, creating step function behavior
         ax.plot(s_values, bentkus_bounds, ':', color=color,
                 label=f'Bentkus (μ={mu})', linewidth=1.5)
+        
+        # Plot Bentkus binomial bound (markers)
+        ax.plot(s_values, bentkus_binom_bounds, 'x', color=color,
+                label=f'Bentkus Binomial (μ={mu})', markersize=4, markevery=5)
     
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
     ax.set_title(f'Comparison of Hoeffding, Becitbam, and Bentkus Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
-    ax.legend(loc='lower left', fontsize=10)
+    ax.legend(loc='lower left', fontsize=8, ncol=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)

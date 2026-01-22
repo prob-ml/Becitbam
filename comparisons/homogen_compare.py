@@ -21,7 +21,7 @@ import os
 # Add the parent directory to path to import becitbam
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from becitbam import hoeffding_thm1, hoeffding_thm2, sharp_chernoff, bentkus
+from becitbam import hoeffding_thm1, hoeffding_thm2, sharp_chernoff, bentkus, bentkus_binomial
 
 
 def compute_bounds(s_values, mu, n):
@@ -47,6 +47,8 @@ def compute_bounds(s_values, mu, n):
         Becitbam (sharp Chernoff) bound on P(S > s)
     bentkus_bounds : numpy.ndarray
         Bentkus bound on P(S > s)
+    bentkus_binomial_bounds : numpy.ndarray
+        Bentkus binomial bound on P(S > s) (using RMS scale)
     """
     # All intervals are [0, 1]
     a = np.ones(n)
@@ -55,6 +57,7 @@ def compute_bounds(s_values, mu, n):
     hoeffding2_bounds = []
     becitbam_bounds = []
     bentkus_bounds = []
+    bentkus_binomial_bounds = []
     
     for s in s_values:
         # Hoeffding Theorem 1 (KL-based, returns log probability)
@@ -72,9 +75,14 @@ def compute_bounds(s_values, mu, n):
         # Bentkus bound (returns probability directly)
         bentkus_prob = bentkus(s, mu, a)
         bentkus_bounds.append(bentkus_prob)
+        
+        # Bentkus binomial bound (returns probability directly)
+        bentkus_binom_prob = bentkus_binomial(s, mu, a)
+        bentkus_binomial_bounds.append(bentkus_binom_prob)
     
     return (np.array(hoeffding1_bounds), np.array(hoeffding2_bounds), 
-            np.array(becitbam_bounds), np.array(bentkus_bounds))
+            np.array(becitbam_bounds), np.array(bentkus_bounds),
+            np.array(bentkus_binomial_bounds))
 
 
 def main(n=100):
@@ -106,7 +114,7 @@ def main(n=100):
     
     for mu, frac, color in zip(mu_values, mu_fractions, colors):
         print(f"Computing bounds for mu={mu} (fraction={frac})...")
-        hoeffding1, hoeffding2, becitbam, bentkus_bounds = compute_bounds(s_values, mu, n)
+        hoeffding1, hoeffding2, becitbam, bentkus_bounds, bentkus_binom_bounds = compute_bounds(s_values, mu, n)
         
         # Plot Hoeffding Theorem 1 (KL) bound (dashed line)
         ax.plot(s_values / n, hoeffding1, '--', color=color, 
@@ -123,6 +131,10 @@ def main(n=100):
         # Plot Bentkus bound (dotted line)
         ax.plot(s_values / n, bentkus_bounds, ':', color=color,
                 label=f'Bentkus (μ={frac})', linewidth=1.5)
+        
+        # Plot Bentkus binomial bound (markers)
+        ax.plot(s_values / n, bentkus_binom_bounds, 'x', color=color,
+                label=f'Bentkus Binomial (μ={frac})', markersize=4, markevery=5)
         
         # Sanity check: Becitbam should match Hoeffding KL
         max_diff = np.max(np.abs(hoeffding1 - becitbam))

@@ -202,6 +202,144 @@ def bentkus(s, mu, a):
     return min(bentkus_prob, 1.0)
 
 
+def bentkus_binomial(s, mu, a):
+    '''
+    Bentkus bound for P(S >= s) using the symmetric Bernoulli construction
+    with RMS scale (Corollary 1.4 / Theorem 1.3).
+
+    This function uses the root-mean-square scale a = sqrt(sum(a_i^2)/n) 
+    instead of the maximum scale. The bound compares the centered variable 
+    M = S - mu to a sum of symmetric Bernoulli random variables.
+
+    Let
+        S = sum_i^n X_i
+        X_i in [0, a_i]
+        sum E[X_i] = mu
+
+    We bound P(S >= s) by analyzing the centered variable M = S - mu.
+    With x = s - mu, Corollary 1.4 gives:
+        P(M >= x) <= (2e^3/9) * P°(S_n >= x)
+
+    where S_n = sum of n i.i.d. symmetric Bernoulli variables epsilon_i in {-a, +a}
+    with a = sqrt(sum(a_i^2)/n) being the RMS scale.
+
+    Since S_n = a(2K - n) where K ~ Binomial(n, 1/2), the lattice points are
+    at y = a(2k - n) for k = 0, 1, ..., n. For non-lattice points, log-linear
+    interpolation is used.
+
+    Parameters
+    ----------
+    s : float
+        Threshold value
+    mu : float
+        Mean of the sum S
+    a : numpy.ndarray
+        Upper bounds for each variable (X_i in [0, a_i])
+
+    Returns
+    -------
+    float
+        Bentkus binomial bound on P(S >= s) (probability, not log probability)
+    '''
+    from scipy.stats import binom
+
+    a = np.asarray(a)
+    n = len(a)
+    
+    # Handle edge case of no variables
+    if n == 0:
+        return 1.0 if s <= 0 else 0.0
+    
+    # RMS scale: a_rms = sqrt(sum(a_i^2) / n)
+    a_rms = np.sqrt(np.sum(a ** 2) / n)
+    
+    # Handle edge case where all a_i = 0
+    if a_rms <= 0:
+        return 1.0 if s <= 0 else 0.0
+    
+    # Centered threshold: x = s - mu
+    x = s - mu
+    
+    # If x <= -n*a_rms (i.e., s <= mu - n*a_rms), probability is 1
+    # If x > n*a_rms (i.e., s > mu + n*a_rms), probability is 0
+    if x <= -n * a_rms:
+        return 1.0
+    if x > n * a_rms:
+        return 0.0
+    
+    # The symmetric Bernoulli sum S_n takes values a(2k-n) for k = 0, 1, ..., n
+    # Lattice spacing is 2*a_rms
+    # S_n = a_rms * (2K - n) where K ~ Binomial(n, 1/2)
+    # P(S_n >= x) = P(K >= (x/a_rms + n)/2)
+    
+    # Find k such that a_rms*(2k - n) is the lattice point at or just below x
+    # Solve: a_rms*(2k - n) <= x => k <= (x/a_rms + n) / 2
+    k_continuous = (x / a_rms + n) / 2.0
+    
+    # k must be in [0, n], and we need k such that a_rms*(2k-n) <= x
+    k = int(np.floor(k_continuous))
+    k = max(0, min(n, k))
+    
+    # Lattice point y = a_rms*(2k - n)
+    y = a_rms * (2 * k - n)
+    
+    # Next lattice point y + 2*a_rms = a_rms*(2(k+1) - n)
+    y_next = a_rms * (2 * (k + 1) - n)
+    
+    # Check if x is at a lattice point (within numerical tolerance)
+    if np.abs(x - y) < 1e-12 * max(1.0, abs(x), abs(y)):
+        # x is exactly at lattice point y = a_rms*(2k - n)
+        # P(S_n >= y) = P(K >= k)
+        if k <= 0:
+            tail_prob = 1.0
+        elif k > n:
+            tail_prob = 0.0
+        else:
+            # P(K >= k) = 1 - P(K <= k-1) = binom.sf(k-1, n, 0.5)
+            tail_prob = binom.sf(k - 1, n, 0.5)
+    else:
+        # x is between lattice points y and y_next
+        # Log-linear interpolation:
+        # lambda = (x - y) / (2*a_rms) in (0, 1)
+        # P°(S_n >= x) = P(K >= k)^(1-lambda) * P(K >= k+1)^lambda
+        
+        lam = (x - y) / (2 * a_rms)
+        lam = np.clip(lam, 0.0, 1.0)  # numerical safety
+        
+        # P(K >= k) 
+        if k <= 0:
+            P_k = 1.0
+        elif k > n:
+            P_k = 0.0
+        else:
+            P_k = binom.sf(k - 1, n, 0.5)
+        
+        # P(K >= k+1)
+        if k + 1 <= 0:
+            P_k1 = 1.0
+        elif k + 1 > n:
+            P_k1 = 0.0
+        else:
+            P_k1 = binom.sf(k, n, 0.5)
+        
+        # Log-linear interpolation
+        if P_k1 <= 0:
+            # If P(K >= k+1) = 0, result is 0 for any lambda > 0
+            tail_prob = 0.0
+        elif P_k <= 0:
+            # This shouldn't happen for valid k, but handle it
+            tail_prob = 0.0
+        else:
+            # P°(S_n >= x) = P_k^(1-lambda) * P_k1^lambda
+            tail_prob = np.exp((1 - lam) * np.log(P_k) + lam * np.log(P_k1))
+    
+    # Apply the prefactor 2*e^3/9
+    prefactor = 2 * np.e ** 3 / 9
+    bentkus_prob = prefactor * tail_prob
+    
+    # Probability cannot exceed 1
+    return min(bentkus_prob, 1.0)
+
 
 r'''
  _   _       _     _          _                            __  __
