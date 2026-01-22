@@ -1,15 +1,18 @@
 #!/bin/bash
 set -e
 
+# Pandoc version (can be overridden via environment variable)
+PANDOC_VERSION="${PANDOC_VERSION:-3.1.1}"
+
 # Create output directory
 mkdir -p _site
 
 # Install pandoc if not available
 if ! command -v pandoc &> /dev/null; then
-    echo "Installing pandoc..."
-    curl -L https://github.com/jgm/pandoc/releases/download/3.1.1/pandoc-3.1.1-linux-amd64.tar.gz -o pandoc.tar.gz
+    echo "Installing pandoc ${PANDOC_VERSION}..."
+    curl -L "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz" -o pandoc.tar.gz
     tar xvzf pandoc.tar.gz
-    export PATH="$PWD/pandoc-3.1.1/bin:$PATH"
+    export PATH="$PWD/pandoc-${PANDOC_VERSION}/bin:$PATH"
 fi
 
 echo "Pandoc version: $(pandoc --version | head -1)"
