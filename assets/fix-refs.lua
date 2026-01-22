@@ -51,7 +51,7 @@ function Div(el)
   return el
 end
 
--- Second pass: fix references in links - ensure only the number is shown
+-- Second pass: fix references in links
 function Link(el)
   local target = el.target
   local label = target:sub(2)  -- Remove the leading #
@@ -64,13 +64,15 @@ function Link(el)
   elseif target:match("^#thm:") then
     local num = theorem_numbers[label]
     if num then
-      -- Just the number, no parentheses for theorems
-      el.content = {pandoc.Str(tostring(num))}
+      -- Include "Theorem" prefix for theorem references
+      el.content = {pandoc.Str("Theorem " .. tostring(num))}
     end
   elseif target:match("^#fig:") then
-    local num = figure_numbers[label]
-    if num then
-      el.content = {pandoc.Str(tostring(num))}
+    -- For figure references, prepend "Figure " to existing content
+    -- Get existing text content
+    local existing_text = pandoc.utils.stringify(el.content)
+    if existing_text and existing_text ~= "" then
+      el.content = {pandoc.Str("Figure " .. existing_text)}
     end
   end
   return el
@@ -89,21 +91,23 @@ function Span(el)
           "#" .. label
         )
       end
-      -- Check theorems
+      -- Check theorems - include "Theorem" prefix
       num = theorem_numbers[label]
       if num then
         return pandoc.Link(
-          {pandoc.Str(tostring(num))},
+          {pandoc.Str("Theorem " .. tostring(num))},
           "#" .. label
         )
       end
-      -- Check figures
-      num = figure_numbers[label]
-      if num then
-        return pandoc.Link(
-          {pandoc.Str(tostring(num))},
-          "#" .. label
-        )
+      -- Check figures - include "Figure" prefix
+      if label:match("^fig:") then
+        local existing_text = pandoc.utils.stringify(el.content)
+        if existing_text and existing_text ~= "" then
+          return pandoc.Link(
+            {pandoc.Str("Figure " .. existing_text)},
+            "#" .. label
+          )
+        end
       end
     end
   end
