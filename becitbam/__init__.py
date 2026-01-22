@@ -2,6 +2,9 @@ import numpy as np
 import scipy as sp
 import scipy.optimize
 
+# Precomputed constant for Bentkus binomial bound: 2*e^3/9
+_BENTKUS_BINOMIAL_PREFACTOR = 2 * np.e ** 3 / 9
+
 def _check_arguments(s,a,mu=None,alpha=None):
     A=np.sum(a)
     assert (a>=0).all()
@@ -334,8 +337,7 @@ def bentkus_binomial(s, mu, a):
             tail_prob = np.exp((1 - lam) * np.log(P_k) + lam * np.log(P_k1))
     
     # Apply the prefactor 2*e^3/9
-    prefactor = 2 * np.e ** 3 / 9
-    bentkus_prob = prefactor * tail_prob
+    bentkus_prob = _BENTKUS_BINOMIAL_PREFACTOR * tail_prob
     
     # Probability cannot exceed 1
     return min(bentkus_prob, 1.0)
