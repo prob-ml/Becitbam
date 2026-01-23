@@ -132,9 +132,9 @@ def main(n=100, seed=42):
         print(f"Computing bounds for mu={mu}...")
         hoeffding_bounds, tight_chernoff_bounds, bentkus_thm12_bounds, bentkus_cor14_bounds = compute_bounds(s_values, mu, a)
         
-        # Plot Hoeffding bound (dashed line)
+        # Plot Hoeffding bound (dashed line) - "General Hoeffding"
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
-                label=f'Hoeffding (μ={mu})', linewidth=1.5)
+                label=f'General Hoeffding (μ={mu})', linewidth=1.5)
         
         # Plot Tight Chernoff bound (solid line)
         ax.plot(s_values, tight_chernoff_bounds, '-', color=color,
@@ -150,7 +150,6 @@ def main(n=100, seed=42):
     
     ax.set_xlabel('s', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.set_title(f'Comparison of Hoeffding, Tight Chernoff, and Bentkus Bounds\n(n={n}, simplex-distributed intervals)', fontsize=14)
     ax.legend(loc='lower left', fontsize=8, ncol=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)

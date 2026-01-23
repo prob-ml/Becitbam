@@ -117,13 +117,13 @@ def main(n=100):
         print(f"Computing bounds for mu={mu} (fraction={frac})...")
         hoeffding1, hoeffding2, tight_chernoff, bentkus_thm12, bentkus_cor14 = compute_bounds(s_values, mu, n)
         
-        # Plot Hoeffding Theorem 1 (KL) bound (dashed line)
+        # Plot Hoeffding Theorem 1 (KL) bound - "Specialized Hoeffding" (dashed line)
         ax.plot(s_values / n, hoeffding1, '--', color=color, 
-                label=f'Hoeffding KL (μ={frac})', linewidth=1.5)
+                label=f'Specialized Hoeffding (μ={frac})', linewidth=1.5)
         
-        # Plot Hoeffding Theorem 2 (sum of squares) bound (dash-dot line)
+        # Plot Hoeffding Theorem 2 (sum of squares) bound - "General Hoeffding" (dash-dot line)
         ax.plot(s_values / n, hoeffding2, '-.', color=color, 
-                label=f'Hoeffding Σa² (μ={frac})', linewidth=1.5)
+                label=f'General Hoeffding (μ={frac})', linewidth=1.5)
         
         # Plot Tight Chernoff bound (solid line)
         ax.plot(s_values / n, tight_chernoff, '-', color=color,
@@ -143,7 +143,6 @@ def main(n=100):
     
     ax.set_xlabel('s/n (normalized threshold)', fontsize=12)
     ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.set_title(f'Comparison of Bounds with Homogeneous Intervals\n(n={n}, all X_i in [0, 1])', fontsize=14)
     ax.legend(loc='lower left', fontsize=8, ncol=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
