@@ -3,7 +3,7 @@
 \usepackage{graphicx,psfrag,epsf}
 \usepackage{enumerate}
 \usepackage{natbib}
-\usepackage{url} % not crucial - just used below for the URL 
+\usepackage{url} % not crucial - just used below for the URL
 
 
 %user supplied additions
@@ -59,7 +59,7 @@ We construct a new tail bound for the sum of independent random variables for si
 
 \section{Introduction}
 
-The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$; we return to this issue below.  The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
+The celebrated Hoeffding's inequality \citep[Theorem 2]{hoeffding_probability_1963} has been a cornerstone for probability and statistics over the last 60 years.  This inequality, which we refer to as the ``general Hoeffding inequality,'' concerns the sum of $n$ independent random variables, $(X_1,\ldots, X_n)$.  Each variable $X_i$ lies in some known interval $[a_i,b_i]$, for $i\in \{1,\ldots n\}$.  In this article, without loss of generality, we assume that $a_i=0$ for each $i$.  The general Hoeffding inequality states that the sum of these random variables, $S=\sum_{i=1}^n X_i$, is unlikely to greatly exceed its expected value, $\mu=\mathbb{E}[S]$.  In particular, for any $t\geq 0$,
 \begin{equation} \label{eq:hoeffgeneral}
 \mathbb{P}(S \geq \mu+t) \leq \exp\left(-2t^2 / \sum_{i=1}^n b_i^2 \right).
 \end{equation}
@@ -67,15 +67,23 @@ Hoeffding's seminal work also included a less well-known bound, which is applica
 \begin{equation} \label{eq:hoeffspecial}
 \mathbb{P}(S \geq \mu+t) \leq \left(\frac{\mu}{\mu+t}\right)^{n\mu+nt} \left(\frac{1-\mu}{1-\mu-t}\right)^{n-n\mu-nt}.
 \end{equation}
-We refer to Equation~\ref{eq:hoeffspecial} as the ``specialized Hoeffding inequality.'' Equation~\ref{eq:hoeffspecial} is tighter than Equation~\ref{eq:hoeffgeneral} in situations where both are applicable.  
+We refer to Equation~\ref{eq:hoeffspecial} as the ``specialized Hoeffding inequality.'' Equation~\ref{eq:hoeffspecial} is tighter than Equation~\ref{eq:hoeffgeneral} in situations where both are applicable.
 
-Note that both the general and specialized Hoeffding inequalities can be applied to translated intervals of the form $[a_i, b_i]$ without difficulty: we can always translate each variable by defining $Y_i = X_i - a_i$, which lies in $[0, b_i - a_i]$, and the sum $\sum_i Y_i = \sum_i X_i - \sum_i a_i$ differs from the original sum by a known constant.  The tail bound for $S = \sum_i X_i$ then follows directly from the bound for $\sum_i Y_i$.  This reduction is possible because we are interested in one-sided tail bounds of the form $\mathbb{P}(S \geq s)$; the translation preserves the structure of the problem.  We note that this setting differs from another line of work that considers the case where $\mathbb{E}[X_i] = 0$ for every $i$ and the bounds take the form $a_i < 0 < b_i$ with both $a_i$ and $b_i$ known per variable.  In that symmetric-around-zero setting, the sidedness of the intervals (i.e., the magnitudes of $a_i$ and $b_i$) very much matters and cannot simply be shifted away.  The assumption $\mathbb{E}[X_i] = 0$ for each variable provides additional structure that can be exploited for tighter bounds.  In contrast, our setting assumes only that each $X_i \in [0, b_i]$ with known overall mean $\mu = \sum_i \mathbb{E}[X_i]$, without knowledge of the individual means.
+In this article, we propose a computable bound for the sum of independent random variables for a setting in which the expected value of the sum is known and each random variable is lies in a known fixed interval of arbitrary size.  The size of these intervals is permitted to differ among variables, which makes the direct application of the specialized Hoeffding inequality impossible.  Bounds for this setting are useful for hypothesis testing regarding the sum's expected value based on an observed realization (or, equivalently, for computing confidence intervals on the sum's expected value).  Our key insight is that a worst-case Chernoff--Cram\'er bound related to our setting can be computed exactly by solving a two-dimensional convex optimization problem, yielding a tighter bound than the general Hoeffding inequality.  The result reduces to Equation~\ref{eq:hoeffspecial} in the special case that $b_i=1$ for each $i \in \{1,\ldots,n\}$.  We use simulations to demonstrate that the new bound can be much tighter than the general Hoeffding inequality in situations where both are applicable and the specialized Hoeffding inequality is not.
 
-Several authors have proposed refinements to Hoeffding's inequality.  \citet{from2013refinement} and \citet{hertz2020improved} provide improved bounds by exploiting additional information about the distributions of the individual random variables.  However, to construct these improved bounds, it is necessary to know the per-variable means $\mathbb{E}[X_i]$ for each variable $i$.  In contrast, the bound we propose here requires only the overall mean $\mu = \sum_{i=1}^n \mathbb{E}[X_i]$, which is the natural quantity to consider when testing a null hypothesis about $\mu$.
+Note that the generalied Hoeffding bound, the specialized Hoeffding bound, and the bounds we develop here for our setting can all be applied to translated intervals of the form $[a_i, b_i]$ without difficulty: we can always translate each variable by defining $Y_i = X_i - a_i$, which lies in $[0, b_i - a_i]$, and the sum $\sum_i Y_i = \sum_i X_i - \sum_i a_i$ differs from the original sum by a known constant.  The tail bound for $S = \sum_i X_i$ then follows directly from the bound for $\sum_i Y_i$.  This reduction is possible because we are interested in tail bounds of the form $\mathbb{P}(S \geq s)$; the translation preserves the structure of the problem.
 
-\citet{bentkus2004hoeffding} establishes two refinements of Hoeffding's inequality that compare tail probabilities to those of binomial-type distributions.  Theorem 1.2 requires all bounding intervals to be of the same size, i.e., $b_i = b$ for all $i$, and compares to a scaled Binomial$(n, p)$ distribution.  When the intervals are heterogeneous, Theorem 1.2 can still be applied by rescaling all variables to lie within $[0, \max_i b_i]$, though this may result in a looser bound.  Corollary 1.4 offers an alternative approach using a symmetric Bernoulli comparison with scale $\sqrt{\sum_i b_i^2/n}$, but it requires bounds of the form $|X_i - \mathbb{E}[X_i]| \leq b_i$.  This is a fundamentally different assumption than knowing that $X_i \in [0, b_i]$: the former bounds the deviation of each variable from its own mean, while the latter specifies a fixed interval containing the variable's support.  In our setting, we know only that $X_i \in [0, b_i]$ and the overall mean $\mu = \sum_i \mathbb{E}[X_i]$, but not the individual means $\mathbb{E}[X_i]$.  Neither Bentkus variant directly handles this case.  We include comparisons with both Bentkus bounds in our simulations.
+\section{Related Work}
 
-In this article, we propose a computable bound for the sum of independent random variables for situations in which the expected value of the sum is known and each random variable is known to lie in a fixed interval of arbitrary size, which may differ among variables.  Such bounds are useful for hypothesis testing regarding the sum's expected value based on an observed realization.  Our key insight is that the worst-case Chernoff--Cram\'er bound can be computed exactly by solving a two-dimensional convex optimization problem, yielding a tighter bound than the general Hoeffding inequality.  The result reduces to Equation~\ref{eq:hoeffspecial} in the special case that $b_i=1$ for each $i \in \{1,\ldots,n\}$.  We use simulations to demonstrate that the new bound can be much tighter than the general Hoeffding inequality in situations where both are applicable and the specialized Hoeffding inequality is not.
+We here discuss two related lines of work.
+
+One related line of work considers the case where it is known that $a_i \leq X_i - \mathbb{E}[X_i] \leq b_i$ for every $i$, with both $a_i$ and $b_i$ known per variable.  We refer to this as the ``bounded mean deviation'' (BMD) setting.  Note that although in our setting we may take $a_i=0$ without loss of generality, in the BMD setting the values $a_i$ cannot be simply shifted away.  Instead, the magnitude of $a_i<\leq0$ and $b_i>\geq0$ provide crucial insight into skew for the BMD setting.
+
+Bounds from our setting (in which $a_i \leq X_i \leq b_i$) can be applied to the BMD setting to calculate the probability of a deviation from the mean: apply a method from our setting to $Y_i = X_i - \mathbb{E}[X_i]$ to bound $\mathbb{P}(\sum_{i}^n Y_i > t)$, then translate by $\mu$ to obtain a bound on $\mathbb{P}(\sum_{i}^n X_i > \mu+t)$.  The application of the generalized Hoeffding inequality to this BMD setting has been shown to be unnecessarily loose.  For example, \citet{hertz2020improved} notes that if $a_i\neq -b_i$ then the asymmetry can be used to produce a superior bound.  On the other hand, when $a_i=-b_i$, \citet[Cor 1.4]{bentkus2004hoeffding} provides a different bound that is often superior to the generalized Hoeffding inequality.
+
+A bound derived from a BMD assumption can be applied to our setting, but the bounds are necessarily quite loose.  To see why, consider a simple version of our setting in which $n=100$ and $X_i \in [-1/2,1/2]$ for each $i$.  This implies the BMD assumption that $1 \leq X_i - \mathbb{E}[X_i] \leq 1$.  However, this BMD assumption is much weaker than our original assumption, and it yields accordingly poor bounds.  In particular, the implied BMD assumption is compatible a case where $X_i$ carries the uniform distribution on $\{-1,1\}$, so that, for example, $\log \mathbb{P}(S>20) \approx -4.03985$.  Consequently, any upper bound based solely on this BMD assumption must be at least $-4.04$.  On the other hand Hoeffding's generalized inequality based on the original assumption yields $\mathbb{P}(S>\mu+20) \leq -8$.  Note that this discrepancy between $-4.04$ and $-8$ is only possible because the uniform distribution producing the $-4.04$ value actually \emph{violates} our original assumption.  In general, the large-deviations exponent for bounds derived from the BMD assumption alone will tend to underperform the large-deviations exponent of bounds derived from the original assumption by a factor of two.
+
+Another line of work considers the case where each $X_i \in [0,1]$.  We refer to this as the ``constant width'' (CW) setting.  The CW setting is a special case of our setting.  Bounds from the CW setting can be applied to our setting by applying a single shift and rescaling across all variables such that they lie in the unit interval.  However, this yields necessarily loose bounds, as it throws away information about the per-variable bounds.  The original specialized Hoeffding inequality targeted this setting, but bounds for this setting have been improved in the meanwhile, for example by \citet[Thm 1.2]{bentkus2004hoeffding}.  In simulations we compare the performance of our method with this method of Bentkus in the CW case (note that our method reduces to Hoeffding's specialized inequality in the CW case).  There has also been some work investigating how additional assumptions can enable tighter bounds in the CW case.  For example, \citet{from2013refinement} show a refinement if $\mu_i=\mathbb{E}[X_i]$ is known for each $i$, and \citet{from2024refinement} show a refinement if $\beta = \sum_i^n (\mu_i-\mu)^2/n$ is known.
 
 \section{Notation and preliminaries}
 
@@ -97,17 +105,17 @@ To produce a bound that is universal for all members of $\mathcal{M}_{\boldsymbo
 \begin{equation} \label{eq:varphistar}
 \varphi^*_{\boldsymbol{b},\mu}(s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \varphi(\boldsymbol{p},s) = \sup_{\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}} \inf_{t\geq 0} \left(\sum_{i=1}^n \log \mathbb{E}_{X_i \sim p_i}[\exp(t X_i)] - ts\right).
 \end{equation}
-This leads to a tail bound for $S$ in terms of $\varphi^*$: 
+This leads to a tail bound for $S$ in terms of $\varphi^*$:
 \begin{equation} \label{eq:chernoff}
 \mathbb{P} \left (S \geq s\right) \leq \exp(\varphi^*_{\boldsymbol{b},\mu}(s)).
 \end{equation}
-Equation~\ref{eq:chernoff} is the worst-case Chernoff--Cram\'er bound for a sum of independent random variables $(X_1,\ldots X_n)$ with each $X_i \in [0,b_i]$ and $\sum_{i=1}^n \mathbb{E}[X_i]=\mu$.  
+Equation~\ref{eq:chernoff} is the worst-case Chernoff--Cram\'er bound for a sum of independent random variables $(X_1,\ldots X_n)$ with each $X_i \in [0,b_i]$ and $\sum_{i=1}^n \mathbb{E}[X_i]=\mu$.
 
 To compute the right-hand side of Equation~\ref{eq:chernoff}, \citet{hoeffding_probability_1963} considers two different readily computable expressions for $\varphi^*$.  In one theorem, a formula for $\varphi^*_{\boldsymbol{b},\mu}$ is provided for the special case in which $b_1=\cdots=b_n=1$, leading to the specialized Hoeffding inequality, Equation~\ref{eq:hoeffspecial}.  In another theorem, an \emph{upper bound} is produced for $\varphi^*_{\boldsymbol{b},\mu}$ in the general case of arbitrary $\boldsymbol{b}$, namely,
 $
 \varphi^*_{\boldsymbol{b},\mu}(s)\leq -2(s-\mu)^2/\sum_{i=1}^n b_i^2,
 $
-leading to the general Hoeffding inequality.  
+leading to the general Hoeffding inequality.
 
 Our contribution in the next section is to show how $\varphi^*$ can be \textit{exactly} computed for arbitrary interval lengths $\boldsymbol{b}$.
 By substituting this exact value of $\varphi^*$ into Equation~\ref{eq:chernoff}, an improved tail bound for the sum of bounded independent random variables follows.
@@ -118,20 +126,20 @@ We now show that $\varphi^*$ (cf. Equation~\ref{eq:varphistar}) can be computed 
 
 Equation~\ref{eq:varphistar} defines $\varphi^*$ as the solution to a maximin problem that involves maximizing over distributions and minimizing over values of $t>0$.  The inner one-dimensional minimization over $t$ can be commuted with the outer infinite-dimensional maximization over $\boldsymbol{p}\in\mathcal{M}_{\boldsymbol{b},\mu}$.  Once the minimization and maximization operators have been commuted, the inner problem reduces to a finite-dimensional optimization problem.  This leads to a new expression for $\varphi^*$, as shown below.
 
-\begin{theorem} \label{thm:tightchernoff} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let 
+\begin{theorem} \label{thm:tightchernoff} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let
 \begin{align*}
 T=\left\{\tau\in \prod_{i=1}^n [0,b_i] : \sum_{i=1}^n \tau_i = \mu\right\}.
 \end{align*}
-Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
+Then, $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 \end{theorem}
 
-The high-dimensional minimax problem from Theorem~\ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.  
+The high-dimensional minimax problem from Theorem~\ref{thm:tightchernoff} can be reduced to a two-dimensional convex optimization problem.
 
-\begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$, 
+\begin{theorem} \label{thm:lowd} Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$,
 \[
 \tau^*_i(t,\lambda) = \min\left(\max\left(\frac{\xi(b_i,t)-\lambda}{\xi(b_i,t)\lambda},0\right),b_i\right),
 \]
@@ -139,7 +147,7 @@ and
 \[
 g(t,\lambda;s) = \sum_i \log\left(1+\xi(b_i,t)\tau_i^*(t,\lambda)\right) + \lambda\left(\mu - \sum_i \tau_i^*(t,\lambda)\right)- ts.
 \]
-Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
+Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as
 \[
 \varphi^*_{\boldsymbol{b},\mu}(s) = \min_{t,\lambda \geq 0} g(t,\lambda;s).
 \]
@@ -161,7 +169,7 @@ This theorem suggests two methods for computing $\varphi^*$.  One method involve
 \end{center}
 \end{figure}
 
-We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{100}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 100 independent random variables, $(X_1,\ldots,X_{100})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,100\}$.  The value of $n$ affects the tightness of all bounds.  However, the overall scaling of the $b_i$ values does not matter: what is relevant is the relative sizes of the intervals, so we normalize the intervals so that their maximum possible sum is 1.  
+We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{100}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 100 independent random variables, $(X_1,\ldots,X_{100})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,100\}$.  The value of $n$ affects the tightness of all bounds.  However, the overall scaling of the $b_i$ values does not matter: what is relevant is the relative sizes of the intervals, so we normalize the intervals so that their maximum possible sum is 1.
 
 For any fixed value of $\mu$ and any value $s \geq \mu$, our new results provide an upper bound on $\mathbb{P}(S>s)$, assuming $\mathbb{E}[S]=\mu$.  The general Hoeffding inequality can also be used to produce a bound on $\mathbb{P}(S>s)$, offering a natural point of comparison.  We also compare with the two Bentkus bounds \citep{bentkus2004hoeffding}: Theorem 1.2 requires all bounding intervals to be of the same size, while Corollary 1.4 uses RMS scale but requires centering information.  To apply Theorem 1.2 to heterogeneous intervals, we rescale all variables so that they lie within $[0, \max_i b_i]$.  For Corollary 1.4, we apply it using only the overall centering $S - \mu$.  These bounds on $\mathbb{P}(S>s)$ have practical implications, such as facilitating hypothesis testing for $\mathbb{E}[S]=\mu$ given an observed realization of $S$.
 
@@ -190,7 +198,7 @@ Here
 $\prod_i \mathcal{M}_{b_i}$
 denotes a direct sum of a topological vector spaces.  For example, if $\boldsymbol{p} \in \mathcal{M}_{\boldsymbol{b},\mu}$ then $\boldsymbol{p}=(p_1,\ldots, p_n)$ where each $p_i \in \mathcal{M}_{b_i}$.  Recall that addition is computed in the following manner for such direct sum spaces: for any $\boldsymbol{p},\boldsymbol{q} \in \mathcal{M}_{\boldsymbol{b},\mu}$, $(\boldsymbol{p}+\boldsymbol{q})=((p_1+q_1),\ldots, (p_n+q_n))$.  This seemingly excessive formality is necessary to clarify that $\mathcal{M}_{\boldsymbol{b},\mu}$ is, in fact, convex.
 
-\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
+\begin{theorem*}[Restatement of Theorem 3.1] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.   Then $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
@@ -199,7 +207,7 @@ denotes a direct sum of a topological vector spaces.  For example, if $\boldsymb
 
 \begin{proof}
 
-Fix $s$. Let $\xi(b,t)=(\exp(bt)-1)/b$.  Let 
+Fix $s$. Let $\xi(b,t)=(\exp(bt)-1)/b$.  Let
 \[
 f(t,\boldsymbol{p})=\sum_{i}\log \mathbb{E}_{B_{i}\sim p_{i}}[\exp(tB_{i})]-ts.
 \]
@@ -208,7 +216,7 @@ Our first step is to reverse the order of the minimization and maximization
 by applying Sion's minimax theorem \citep{komiya1988elementary}. We observe the following.
 \begin{itemize}
 \item $f$ is convex with respect to $t$, as it is the sum of cumulant
-generating functions. 
+generating functions.
 \item $f$ is concave with respect to $\boldsymbol{p}$, due to Jensen's
 inequality.
 \item $f$ is continuous with respect both $\boldsymbol{p}$ and $t$.
@@ -236,7 +244,7 @@ Bernoulli random variable, namely
 p_{i}=\delta_{0}\left(1-\frac{\tau_{i}}{b_i}\right)+\delta_{b_i}\frac{\tau_{i}}{b_i}
 \]
 where $\delta_{x}$ represents the point mass at $x$. Under this
-distribution, 
+distribution,
 \[
 \log \mathbb{E}_{p_{i}}\left[\exp\left(tB_{i}\right)\right]=\log\left(1+\xi(b_i,t)\tau_{i}\right).
 \]
@@ -245,9 +253,9 @@ Summing over $i$, we obtain that
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i \leq \mu} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
-This is very nearly the statement we seek to prove.  The only remaining impediment is that the maximization over $f$ that we 
+This is very nearly the statement we seek to prove.  The only remaining impediment is that the maximization over $f$ that we
 have defined permits $\sum_i\tau_i \leq \mu$, whereas we claim in the theorem statement that it is sufficient to only consider
-cases in which $\sum_i\tau_i = \mu$.  
+cases in which $\sum_i\tau_i = \mu$.
 
 To see that this is true, note that the objective is coordinatewise nondecreasing in $\tau$ (strictly increasing if $t>0$).  Hence, if a maximizer
 $\tau^\star$ under $\sum_i\tau_i\le \mu$ had slack, i.e.\ $\sum_i\tau_i^\star<\mu$, then since
@@ -258,7 +266,7 @@ $\sum_i\tau_i=\mu$ (and when $t=0$ the objective is constant, so the value is un
 
 \end{proof}
 
-\begin{theorem*}[Restatement of Theorem 3.2] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$, 
+\begin{theorem*}[Restatement of Theorem 3.2] Fix $\boldsymbol{b}=(b_1,\ldots b_n)$, $\mu \in [0,\sum_{i=1}^n b_i]$, and $s \in [0,\sum_{i=1}^n b_i]$.  Let $\xi(b,t) = (\exp(bt)-1)/b$,
 \[
 \tau^*_i(t,\lambda) = \min\left(\max\left(\frac{\xi(b_i,t)-\lambda}{\xi(b_i,t)\lambda},0\right),b_i\right),
 \]
@@ -266,7 +274,7 @@ and
 \[
 g(t,\lambda;s) = \sum_i \log\left(1+\xi(b_i,t)\tau_i^*(t,\lambda)\right) + \lambda\left(\mu - \sum_i \tau_i^*(t,\lambda)\right)- ts.
 \]
-Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as 
+Then, $g$ is convex and $\varphi^*_{\boldsymbol{b},\mu}(s)$ from Equation~\ref{eq:varphistar} can be expressed as
 \[
 \varphi^*_{\boldsymbol{b},\mu}(s) = \min_{t,\lambda \geq 0} g(t,\lambda;s).
 \]
@@ -274,13 +282,13 @@ Moreover, the mapping $t \mapsto \min_\lambda g(t,\lambda;s)$ is convex and the 
 \end{theorem*}
 
 \begin{proof}
-Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that 
+Let $T=\{\tau\in \prod_{i=1}^n [0,b_i]: \sum_{i=1}^n \tau_i = \mu\}$.  Recall from Theorem~\ref{thm:tightchernoff} that
 \begin{gather*}
 \varphi^*_{\boldsymbol{b},\mu}(s)
 = \min_{t\geq 0} \left(\max_{\tau \in T} \sum_{i=1}^n \log\left(1+\tau_i (\exp(b_i t)-1)/b_i \right) - ts\right).
 \end{gather*}
 For any fixed $t\geq0$, we begin by rewriting the inner maximization problem
-in terms of 
+in terms of
 \[
 f(\tau;t)=\begin{cases}
 \sum_{i}\log\left(1+\xi(b_i,t)\tau_{i}\right)-ts & \mathrm{if}\ \tau\in\prod_{i}[0,b_i]\\
@@ -291,7 +299,7 @@ The inner maximization problem is thus equivalent to
 \[
 \max_{\tau:\ \sum_{i}\tau_{i}=\mu}f(\tau;t).
 \]
-The associated Lagrangian function is given by 
+The associated Lagrangian function is given by
 \[
 \mathcal{L}(\tau,\lambda;t)=\sum_{i}\log\left(1+\xi(b_i,t)\tau_{i}\right)+\lambda\left(\mu-\sum_{i}\tau_{i}\right)-ts.
 \]
@@ -301,7 +309,7 @@ The argument maximizing $\tau\mapsto\mathcal{L}(\tau,\lambda;t)$
 is given by $\tau_{i}^{*}(t,\lambda)$. Thus $g(t,\lambda)=\max_{\tau}\mathcal{L}(\tau,\lambda;t)$,
 the Lagrangian dual for a convex optimization problem with convex
 constraints. There is at least one feasible point, namely $\tau_{i}=b_i\mu/\sum_{j}b_{j}$,
-so strong duality holds and 
+so strong duality holds and
 \[
 \max_{\substack{\tau\in\prod_{i}[0,b_i]\\
 \sum_{i}\tau_{i}=\mu
@@ -312,7 +320,7 @@ as desired.
 
 We now demonstrate that $g$ is convex. First, observe that $\mathcal{L}$
 is affine in $\lambda$ and convex in $t$. Thus $g$ is a pointwise
-maximum of a family of convex functions: it is convex. 
+maximum of a family of convex functions: it is convex.
 
 Finally, we demonstrate that $t\mapsto\min_{\lambda}g(t,\lambda)$
 is convex. Observe that, for any fixed $\tau_{i}\geq0$, the mapping
@@ -321,7 +329,7 @@ t\mapsto\sum_{i}\log\left(1+\xi(b_i,t)\tau_{i}\right)-ts
 \]
 is convex in $t$. Thus $\min_{\lambda}g(t,\lambda)$ is also the
 pointwise maximum of a family of convex functions: it is also convex.
-\end{proof}  
+\end{proof}
 
 \section*{Sensitivity to Sample Size}\label{app:sensitivity}
 
