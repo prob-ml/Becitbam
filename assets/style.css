@@ -141,6 +141,19 @@ figure img {
     height: auto;
 }
 
+/* Side-by-side figures in a single figure container */
+figure .center {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+figure .center img {
+    max-width: 48%;
+    flex: 1 1 45%;
+}
+
 figcaption {
     font-size: 0.9rem;
     color: #666;
