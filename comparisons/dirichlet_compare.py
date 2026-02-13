@@ -134,23 +134,24 @@ def main(n=100, seed=42):
         
         # Plot Hoeffding bound (dashed line) - "General Hoeffding"
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
-                label=f'General Hoeffding (μ={mu})', linewidth=1.5)
+                label=f'General Hoeffding (μ={mu})', linewidth=2.5)
         
         # Plot Tight Chernoff bound (solid line)
         ax.plot(s_values, tight_chernoff_bounds, '-', color=color,
-                label=f'Tight Chernoff (μ={mu})', linewidth=1.5)
+                label=f'Tight Chernoff (μ={mu})', linewidth=2.5)
         
         # Plot Bentkus Thm 1.2 bound (dotted line)
         ax.plot(s_values, bentkus_thm12_bounds, ':', color=color,
-                label=f'Bentkus Thm 1.2 (μ={mu})', linewidth=1.5)
+                label=f'Bentkus Thm 1.2 (μ={mu})', linewidth=2.5)
         
         # Plot Bentkus Cor 1.4 bound (markers)
         ax.plot(s_values, bentkus_cor14_bounds, 'x', color=color,
-                label=f'Bentkus Cor 1.4 (μ={mu})', markersize=4, markevery=5)
+                label=f'Bentkus Cor 1.4 (μ={mu})', markersize=8, markevery=5)
     
-    ax.set_xlabel('s', fontsize=12)
-    ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.legend(loc='lower left', fontsize=8, ncol=2)
+    ax.set_xlabel('s', fontsize=24)
+    ax.set_ylabel('P(S > s)', fontsize=24)
+    ax.tick_params(axis='both', labelsize=18)
+    ax.legend(loc='lower left', fontsize=16, ncol=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
