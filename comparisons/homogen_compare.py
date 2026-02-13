@@ -110,27 +110,28 @@ def main(n=100):
         
         # Plot Hoeffding Theorem 1 (KL) bound - "Specialized Hoeffding" (dashed line)
         ax.plot(s_values / n, hoeffding1, '--', color=color, 
-                label=f'Specialized Hoeffding (μ={frac})', linewidth=1.5)
+                label=f'Specialized Hoeffding (μ={frac})', linewidth=2.5)
         
         # Plot Hoeffding Theorem 2 (sum of squares) bound - "General Hoeffding" (dash-dot line)
         ax.plot(s_values / n, hoeffding2, '-.', color=color, 
-                label=f'General Hoeffding (μ={frac})', linewidth=1.5)
+                label=f'General Hoeffding (μ={frac})', linewidth=2.5)
         
         # Plot Tight Chernoff bound (solid line)
         ax.plot(s_values / n, tight_chernoff, '-', color=color,
-                label=f'Tight Chernoff (μ={frac})', linewidth=1.5)
+                label=f'Tight Chernoff (μ={frac})', linewidth=2.5)
         
         # Plot Bentkus Thm 1.2 bound (dotted line)
         ax.plot(s_values / n, bentkus_thm12, ':', color=color,
-                label=f'Bentkus Thm 1.2 (μ={frac})', linewidth=1.5)
+                label=f'Bentkus Thm 1.2 (μ={frac})', linewidth=2.5)
         
         # Sanity check: Tight Chernoff should match Hoeffding KL
         max_diff = np.max(np.abs(hoeffding1 - tight_chernoff))
         print(f"  Max |Hoeffding KL - Tight Chernoff| = {max_diff:.2e}")
     
-    ax.set_xlabel('s/n (normalized threshold)', fontsize=12)
-    ax.set_ylabel('P(S > s)', fontsize=12)
-    ax.legend(loc='lower left', fontsize=8, ncol=2)
+    ax.set_xlabel('s/n (normalized threshold)', fontsize=24)
+    ax.set_ylabel('P(S > s)', fontsize=24)
+    ax.tick_params(axis='both', labelsize=18)
+    ax.legend(loc='lower left', fontsize=16, ncol=2, framealpha=1)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
