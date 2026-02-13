@@ -151,7 +151,7 @@ def main(n=100, seed=42):
     ax.set_xlabel('s', fontsize=24)
     ax.set_ylabel('P(S > s)', fontsize=24)
     ax.tick_params(axis='both', labelsize=18)
-    ax.legend(loc='lower left', fontsize=16, ncol=2)
+    ax.legend(loc='lower left', fontsize=16, ncol=2, framealpha=1)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
