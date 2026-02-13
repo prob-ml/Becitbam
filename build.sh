@@ -40,4 +40,21 @@ pandoc manuscript/main.tex \
     --csl=assets/apa.csl \
     --output=_site/index.html
 
+# Build supplementary PDF if pdflatex is available
+if command -v pdflatex &> /dev/null; then
+    echo "Building supplementary PDF..."
+    cd manuscript
+    pdflatex -output-directory=../_site supplementary.tex
+    # Run twice for references
+    pdflatex -output-directory=../_site supplementary.tex
+    cd ..
+    # Clean up auxiliary files
+    rm -f _site/supplementary.aux _site/supplementary.log _site/supplementary.out
+    echo "Supplementary PDF built: _site/supplementary.pdf"
+else
+    echo "Note: pdflatex not available. Skipping supplementary PDF build."
+    echo "To build supplementary.pdf, install texlive-latex-base and run:"
+    echo "  cd manuscript && pdflatex supplementary.tex"
+fi
+
 echo "Build complete! Output in _site/"
