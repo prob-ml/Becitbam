@@ -159,7 +159,7 @@ def main(n=100, seed=42):
     # Save the plot
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, f'dirichlet_{n}.png')
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     print(f"Plot saved to {output_path}")
     
     plt.close()
