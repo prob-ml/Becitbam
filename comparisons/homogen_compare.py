@@ -99,7 +99,7 @@ def main(n=100):
     mu_values = [frac * n for frac in mu_fractions]
     
     # Set up the plot
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
     
     # Colors and styles for different mu values
     colors = ['blue', 'green', 'red']
@@ -128,10 +128,10 @@ def main(n=100):
         max_diff = np.max(np.abs(hoeffding1 - tight_chernoff))
         print(f"  Max |Hoeffding KL - Tight Chernoff| = {max_diff:.2e}")
     
-    ax.set_xlabel('s/n (normalized threshold)', fontsize=24)
-    ax.set_ylabel('P(S > s)', fontsize=24)
-    ax.tick_params(axis='both', labelsize=18)
-    ax.legend(loc='lower left', fontsize=16, ncol=2, framealpha=1)
+    ax.set_xlabel('s/n (normalized threshold)', fontsize=26)
+    ax.set_ylabel('P(S > s)', fontsize=26)
+    ax.tick_params(axis='both', labelsize=20)
+    ax.legend(loc='lower left', fontsize=18, ncol=2, framealpha=1)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0.8, 1.0)
@@ -139,7 +139,7 @@ def main(n=100):
     # Save the plot
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, f'homogen_{n}.png')
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     print(f"Plot saved to {output_path}")
     
     plt.close()
