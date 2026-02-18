@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Compare Hoeffding (Thm 1 & 2), Tight Chernoff, and Bentkus bounds for sums of bounded 
+Compare Hoeffding (Thm 1 & 2), Worst-case Chernoff, and Bentkus bounds for sums of bounded 
 random variables where all variables are in [0, 1] (homogeneous intervals).
 
 In this case:
 - Hoeffding Theorem 1 (KL-based) applies directly
 - Hoeffding Theorem 2 (sum of squares) also applies
-- Tight Chernoff (sharp Chernoff) should match Hoeffding Theorem 1 as a sanity check
+- Worst-case Chernoff (sharp Chernoff) should match Hoeffding Theorem 1 as a sanity check
 - Bentkus Thm 1.2 bound compares to Binomial(n, p)
 
-This provides a sanity check that Tight Chernoff agrees with the KL Hoeffding bound
+This provides a sanity check that Worst-case Chernoff agrees with the KL Hoeffding bound
 when all intervals are equal to [0, 1].
 """
 
@@ -42,7 +42,7 @@ def compute_bounds(s_values, mu, n):
     hoeffding2_bounds : numpy.ndarray
         Hoeffding Theorem 2 (sum of squares) bound on P(S > s)
     tight_chernoff_bounds : numpy.ndarray
-        Tight Chernoff (sharp Chernoff) bound on P(S > s)
+        Worst-case Chernoff (sharp Chernoff) bound on P(S > s)
     bentkus_thm12_bounds : numpy.ndarray
         Bentkus Thm 1.2 bound on P(S > s)
     """
@@ -58,7 +58,7 @@ def compute_bounds(s_values, mu, n):
         log_hoeffding2 = hoeffding_thm2(s, mu, a)
         hoeffding2_bounds.append(np.exp(log_hoeffding2))
         
-        # Tight Chernoff bound (returns log probability)
+        # Worst-case Chernoff bound (returns log probability)
         log_tight_chernoff = sharp_chernoff(s, mu, a)
         tight_chernoff_bounds.append(np.exp(log_tight_chernoff))
         
@@ -105,9 +105,9 @@ def main(n=100):
         ax.plot(s_values / n, hoeffding2, '-.', color=color, 
                 label=f'General Hoeffding (μ={frac})', linewidth=2.5)
         
-        # Plot Tight Chernoff bound (solid line)
+        # Plot Worst-case Chernoff bound (solid line)
         ax.plot(s_values / n, tight_chernoff, '-', color=color,
-                label=f'Tight Chernoff (μ={frac})', linewidth=2.5)
+                label=f'Worst-case Chernoff (μ={frac})', linewidth=2.5)
         
         # Plot Bentkus Thm 1.2 bound (dotted line)
         ax.plot(s_values / n, bentkus_thm12, ':', color=color,

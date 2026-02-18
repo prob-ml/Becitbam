@@ -344,12 +344,12 @@ def bentkus_binomial(s, mu, a):
 
 
 r'''
- _   _       _     _          _                            __  __
-| |_(_) __ _| |__ | |_    ___| |__   ___ _ __ _ __   ___  / _|/ _|
-| __| |/ _` | '_ \| __|  / __| '_ \ / _ \ '__| '_ \ / _ \| |_| |_
-| |_| | (_| | | | | |_  | (__| | | |  __/ |  | | | | (_) |  _|  _|
- \__|_|\__, |_| |_|\__|  \___|_| |_|\___|_|  |_| |_|\___/|_| |_|
-       |___/
+                        _                            _                            __  __
+ __      _____  _ __ __| |_       ___ __ _ ___  ___ | |__   ___ _ __ _ __   ___  / _|/ _|
+ \ \ /\ / / _ \| '__/ _  __|__  / __/ _` / __|/ _ \| '_ \ / _ \ '__| '_ \ / _ \| |_| |_
+  \ V  V / (_) | | \__ \ || |_ | (_| (_| \__ \  __/| | | |  __/ |  | | | | (_) |  _|  _|
+   \_/\_/ \___/|_| |___/\__\__| \___\__,_|___/\___||_| |_|\___|_|  |_| |_|\___/|_| |_|
+
 '''
 
 def uniqify(a):
@@ -439,7 +439,7 @@ def calculate_sharp_chernoff_parameters(s, mu, a):
 
         X_i ~ Bernoulli(tau_i / a_i) * a_i
 
-    then E[exp(tstar * sum X_i)] * exp(-tstar * s) achieves the tight
+    then E[exp(tstar * sum X_i)] * exp(-tstar * s) achieves the worst-case
     Chernoff bound. Here tau_i = E[X_i] is the mean of X_i.
 
     Parameters
