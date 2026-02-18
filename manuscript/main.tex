@@ -183,7 +183,7 @@ This theorem suggests two methods for computing $\varphi^*$.  One method involve
 \end{center}
 \end{figure}
 
-We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{100}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 100 independent random variables, $(X_1,\ldots,X_{100})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,100\}$.  The value of $n$ affects the tightness of all bounds.  However, the overall scaling of the $b_i$ values does not matter: what is relevant is the relative sizes of the intervals, so we normalize the intervals so that their maximum possible sum is 1.
+We use simulations to assess the degree of improvement over the general Hoeffding inequality.  First, we sample a vector of interval lengths, $\boldsymbol{b} \in \mathbb{R}^{100}$, uniformly at random from the set of lengths such that $B=\sum_{i=1}^{100} b_i=1$.  We define $S$ to be the sum of 100 independent random variables, $(X_1,\ldots,X_{100})$, where each $X_i$ is constrained to the interval $[0,b_i]$ for $i\in \{1,\ldots,100\}$.  The value of $n$ could affect the tightness of all bounds, but in the supplementary material we show the effect is negligible for this kind of simulation.  The overall scaling of the $b_i$ values does not affect tightness: what is relevant is the relative sizes of the intervals, so we normalize the intervals so that their maximum possible sum is 1.
 
 For any fixed value of $\mu$ and any value $s \geq \mu$, our new results provide an upper bound on $\mathbb{P}(S>s)$, assuming $\mathbb{E}[S]\leq \mu$.  The general Hoeffding inequality can also be used to produce a bound on $\mathbb{P}(S>s)$, offering a natural point of comparison.  We also compare with the two Bentkus bounds \citep{bentkus2004hoeffding}: Theorem 1.2 is applicable in the CW setting and requires all bounding intervals to be of the same size, while Corollary 1.4 is applicable in the BMD setting and provides per-variable scaling but requires centering information.  To apply Theorem 1.2 to heterogeneous intervals, we rescale all variables so that they lie within $[0, \max_i b_i]$.  For Corollary 1.4, we apply it using only the overall centering $S - \mu$.  These bounds on $\mathbb{P}(S>s)$ have practical implications, such as facilitating hypothesis testing for $\mathbb{E}[S]\leq \mu$ given an observed realization of $S$.
 
@@ -200,6 +200,8 @@ To verify that our bounds perform well even when the Bentkus bounds are directly
 \begin{description}
 
 \item[Demonstrating the new bound:] Code for solving the two-dimensional convex optimization problem involved in the new bound, together with demonstrations of its use.  (Jupyter notebook)
+
+\item[Altering $n$:] plots similar to those in Figure 1, with difference choices for $n$ (Document)
 
 \end{description}
 
