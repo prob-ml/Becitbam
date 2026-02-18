@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Compare Hoeffding, Tight Chernoff, and Bentkus bounds for sums of bounded random variables
+Compare Hoeffding, Worst-case Chernoff, and Bentkus bounds for sums of bounded random variables
 where the bounds come from a Dirichlet (n-simplex) distribution.
 
 This script generates a random vector `a` from the n-simplex, considers
@@ -49,7 +49,7 @@ def generate_simplex_vector(n, seed=42):
 
 def compute_bounds(s_values, mu, a):
     """
-    Compute Hoeffding, Tight Chernoff, and Bentkus bounds for P(S > s).
+    Compute Hoeffding, Worst-case Chernoff, and Bentkus bounds for P(S > s).
     
     Parameters
     ----------
@@ -65,7 +65,7 @@ def compute_bounds(s_values, mu, a):
     hoeffding_bounds : numpy.ndarray
         Hoeffding bound on P(S > s) for each s
     tight_chernoff_bounds : numpy.ndarray
-        Tight Chernoff (sharp Chernoff) bound on P(S > s) for each s
+        Worst-case Chernoff (sharp Chernoff) bound on P(S > s) for each s
     bentkus_thm12_bounds : numpy.ndarray
         Bentkus Thm 1.2 bound on P(S > s) for each s (rescaled to max interval = 1)
     bentkus_cor14_bounds : numpy.ndarray
@@ -81,7 +81,7 @@ def compute_bounds(s_values, mu, a):
         log_hoeffding = hoeffding_thm2(s, mu, a)
         hoeffding_bounds.append(np.exp(log_hoeffding))
         
-        # Tight Chernoff bound (returns log probability)
+        # Worst-case Chernoff bound (returns log probability)
         log_tight_chernoff = sharp_chernoff(s, mu, a)
         tight_chernoff_bounds.append(np.exp(log_tight_chernoff))
         
@@ -136,9 +136,9 @@ def main(n=100, seed=42):
         ax.plot(s_values, hoeffding_bounds, '--', color=color, 
                 label=f'General Hoeffding (μ={mu})', linewidth=2.5)
         
-        # Plot Tight Chernoff bound (solid line)
+        # Plot Worst-case Chernoff bound (solid line)
         ax.plot(s_values, tight_chernoff_bounds, '-', color=color,
-                label=f'Tight Chernoff (μ={mu})', linewidth=2.5)
+                label=f'Worst-case Chernoff (μ={mu})', linewidth=2.5)
         
         # Plot Bentkus Thm 1.2 bound (dotted line)
         ax.plot(s_values, bentkus_thm12_bounds, ':', color=color,
@@ -168,7 +168,7 @@ def main(n=100, seed=42):
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare Hoeffding, Tight Chernoff, and Bentkus bounds')
+    parser = argparse.ArgumentParser(description='Compare Hoeffding, Worst-case Chernoff, and Bentkus bounds')
     parser.add_argument('--n', type=int, default=100, help='Dimension of the simplex (default: 100)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility (default: 42)')
     
